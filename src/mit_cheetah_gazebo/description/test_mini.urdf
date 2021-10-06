@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<robot name="test_mini"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- LINK BODY -->
+  <link name="link_body">
+    <pose> 0 0 0 0 0 0</pose>
+
+    <inertial>
+      <mass value="5"/>
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+
+    <collision name="collision_body">
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_body.obj"/>
+      </geometry>
+    </collision>
+
+    <visual name="visual_body">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_body.obj"/>
+      </geometry>
+    </visual>
+  </link>
+  <!--  -->
+
+  <!-- joint front right leg 3 to front right servo 3 -->
+  <joint name="one" type="revolute">
+    <parent link="link_body"/>
+    <child link="link_lower"/>
+    <axis xyz="1 0 0" />
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
+  </joint>
+
+  <!-- LINK LOWER -->
+  <link name="link_lower">
+    <pose> 0 0 0 0 0 0</pose>
+
+    <inertial>
+      <mass value="5"/>
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+
+    <collision name="collision_lower">
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
+      </geometry>
+    </collision>
+
+    <visual name="visual_lower">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
+      </geometry>
+    </visual>
+  </link>
+  <!--  -->
+
+  <!-- LINK UPPER -->
+  <!-- <link name="link_upper">
+    <pose> 0 0 0 0 0 0</pose>
+
+    <inertial>
+      <mass value="5"/>
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+
+    <collision name="collision_upper">
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
+      </geometry>
+    </collision>
+
+    <visual name="visual_upper">
+      <origin rpy="0 0 0" xyz="-0.5 0 0.1"/>
+      <geometry>
+        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
+      </geometry>
+    </visual>
+  </link> -->
+
+</robot>
