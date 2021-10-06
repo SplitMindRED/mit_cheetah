@@ -6,9 +6,10 @@
         "limitSymbolsToIncludedHeaders": true
       },
       "includePath": [
-        "/home/splitmind/itmo_ws/src/Cheetah-Software/**",
-        "/home/splitmind/itmo_ws/src/Cheetah-Software/robot/**",
-        "/usr/include/**"
+        "/home/splitmind/itmo_ws/mit_sim/Cheetah-Software/**",
+        "/usr/include/**",
+        "${workspaceFolder}/robot/include",
+        "/usr/local/include/lcm"
       ],
       "name": "ROS"
     }

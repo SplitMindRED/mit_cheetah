@@ -60,6 +60,7 @@ mit_sim/Cheetah-Software/msg/*Result.msg
 mit_sim/Cheetah-Software/msg/_*.py
 mit_sim/Cheetah-Software/build_isolated/
 mit_sim/Cheetah-Software/devel_isolated/
+mit_sim/Cheetah-Software/documentation/doxygen/html
 mit_sim/eigen
 mit_sim/lcm-1.4.0
 
