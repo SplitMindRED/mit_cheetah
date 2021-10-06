@@ -1,22 +1,23 @@
 {
-  "configurations": [
-    {
-      "browse": {
-        "databaseFilename": "",
-        "limitSymbolsToIncludedHeaders": true
-      },
-      "includePath": [
-        "/opt/ros/noetic/include/**",
-        "/home/splitmind/rtc_ws/devel/include/**",
-        "/home/splitmind/rtc_ws/src/bogomaz_driver/bogomaz_driver/include/**",
-        "/home/splitmind/rtc_ws/src/can_open/include/**",
-        "/home/splitmind/rtc_ws/src/mid_layer/include/**",
-        "/home/splitmind/itmo_ws/src/mit_cheetah_gazebo/include/**",
-        "/home/splitmind/rtc_ws/src/ros_rtc_bridge/include/**",
-        "/usr/include/**"
-      ],
-      "name": "ROS"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/opt/ros/noetic/include/**",
+                "/home/splitmind/rtc_ws/devel/include/**",
+                "/home/splitmind/rtc_ws/src/bogomaz_driver/bogomaz_driver/include/**",
+                "/home/splitmind/rtc_ws/src/can_open/include/**",
+                "/home/splitmind/rtc_ws/src/mid_layer/include/**",
+                "/home/splitmind/itmo_ws/src/mit_cheetah_gazebo/include/**",
+                "/home/splitmind/rtc_ws/src/ros_rtc_bridge/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
 }

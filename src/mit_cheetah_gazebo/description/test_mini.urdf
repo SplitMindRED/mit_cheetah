@@ -2,8 +2,9 @@
 <robot name="test_mini"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="abad" params="prefix offset_x offset_y rotate_y rotate_z">
-
+  <!-- LEG MACRO -->
+  <xacro:macro name="abad" params="prefix offset_x offset_y rotate_y rotate_z rotate_y_upper rotate_y_lower">
+    <!-- LINK ABAD -->
     <link name="link_${prefix}_abad">
       <pose> 0 0 0 0 0 0</pose>
 
@@ -28,7 +29,9 @@
         </geometry>
       </collision>
     </link>
+    <!--  -->
 
+    <!-- JOINT ABAD TO BODY -->
     <joint name="${prefix}_abad_to_body" type="revolute">
       <parent link="link_body"/>
       <child link="link_${prefix}_abad"/>
@@ -36,8 +39,83 @@
       <origin rpy="0 ${3.14159 * rotate_y} ${1.5708 * rotate_z}" xyz="${0.139 * offset_x} ${0.05 * offset_y} 0"/>
       <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
     </joint>
+    <!--  -->
 
+    <!-- LINK UPPER -->
+    <link name="link_${prefix}_upper">
+      <pose> 0 0 0 0 0 0</pose>
+
+      <inertial>
+        <mass value="5"/>
+        <origin rpy="0 0 0" xyz="0 0 0.1"/>
+        <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+
+      <visual>
+        <geometry>
+          <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
+        </geometry>
+        <!-- <material name="Cyan">
+          <color rgba="0 0.0 1.0 1.0"/>
+        </material> -->
+      </visual>
+
+      <collision>
+        <geometry>
+          <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
+        </geometry>
+      </collision>
+    </link>
+    <!--  -->
+
+    <!-- JOINT UPPER TO ABAD -->
+    <joint name="${prefix}_upper_to_abad" type="revolute">
+      <parent link="link_${prefix}_abad"/>
+      <child link="link_${prefix}_upper"/>
+      <axis xyz="0 1 0" />
+      <origin rpy="3.14159 ${3.14159 * rotate_y_upper} 1.5708" xyz="-0.0613 0.0575 0"/>
+      <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
+    </joint>
+    <!--  -->
+
+    <!-- LINK LOWER -->
+    <link name="link_${prefix}_lower">
+      <pose> 0 0 0 0 0 0</pose>
+
+      <inertial>
+        <mass value="5"/>
+        <origin rpy="0 0 0" xyz="0 0 0.1"/>
+        <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+
+      <visual>
+        <geometry>
+          <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
+        </geometry>
+        <!-- <material name="Cyan">
+          <color rgba="0 0.0 1.0 1.0"/>
+        </material> -->
+      </visual>
+
+      <collision>
+        <geometry>
+          <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
+        </geometry>
+      </collision>
+    </link>
+    <!--  -->
+
+    <!-- JOINT LOWER TO UPPER -->
+    <joint name="${prefix}_lower_to_upper" type="revolute">
+      <parent link="link_${prefix}_upper"/>
+      <child link="link_${prefix}_lower"/>
+      <axis xyz="0 1 0" />
+      <origin rpy="0 ${3.14159 * rotate_y_lower} 0" xyz="-0.20835 -0.0011 0"/>
+      <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
+    </joint>
+    <!--  -->
   </xacro:macro>
+  <!--  -->
 
   <!--################################## LINKS ##################################-->
   <!-- LINK ROOT -->
@@ -71,88 +149,11 @@
   </link>
   <!--  -->
 
-  <!-- start from lf -->
-  <xacro:abad prefix="fl" offset_x="1" offset_y="1" rotate_y="0" rotate_z="-1"/>
-  <xacro:abad prefix="fr" offset_x="1" offset_y="-1" rotate_y="1" rotate_z="-1"/>
-  <xacro:abad prefix="bl" offset_x="-1" offset_y="1" rotate_y="1" rotate_z="1"/>
-  <xacro:abad prefix="br" offset_x="-1" offset_y="-1" rotate_y="0" rotate_z="1"/>
-
-  <!-- LINK FROWARD LEFT ABAD -->
-  <!-- <link name="link_lf_abad">
-    <pose> 0 0 0 0 0 0</pose>
-
-    <inertial>
-      <mass value="5"/>
-      <origin rpy="0 0 0" xyz="0 0 0.1"/>
-      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-
-    <collision>
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_abad.obj"/>
-      </geometry>
-    </collision>
-
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_abad.obj"/>
-      </geometry>
-    </visual>
-  </link> -->
-  <!--  -->
-
-  <!-- LINK LOWER -->
-  <!-- <link name="link_lower">
-    <pose> 0 0 0 0 0 0</pose>
-
-    <inertial>
-      <mass value="5"/>
-      <origin rpy="0 0 0" xyz="0 0 0.1"/>
-      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-
-    <collision name="collision_lower">
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
-      </geometry>
-    </collision>
-
-    <visual name="visual_lower">
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_lower_link.obj"/>
-      </geometry>
-    </visual>
-  </link> -->
-  <!--  -->
-
-  <!-- LINK UPPER -->
-  <!-- <link name="link_upper">
-    <pose> 0 0 0 0 0 0</pose>
-
-    <inertial>
-      <mass value="5"/>
-      <origin rpy="0 0 0" xyz="0 0 0.1"/>
-      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-
-    <collision name="collision_upper">
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
-      </geometry>
-    </collision>
-
-    <visual name="visual_upper">
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://mit_cheetah_gazebo/description/models/mini_cheetah/mini_upper_link.obj"/>
-      </geometry>
-    </visual>
-  </link> -->
-  <!--  -->
-
-
+  <!-- start from lf 4 legs -->
+  <xacro:abad prefix="fl" offset_x="1" offset_y="1" rotate_y="0" rotate_z="-1" rotate_y_upper="0" rotate_y_lower="0"/>
+  <xacro:abad prefix="fr" offset_x="1" offset_y="-1" rotate_y="1" rotate_z="-1" rotate_y_upper="0" rotate_y_lower="1"/>
+  <xacro:abad prefix="bl" offset_x="-1" offset_y="1" rotate_y="1" rotate_z="1" rotate_y_upper="1" rotate_y_lower="0"/>
+  <xacro:abad prefix="br" offset_x="-1" offset_y="-1" rotate_y="0" rotate_z="1" rotate_y_upper="1" rotate_y_lower="1"/>
   <!--############################################################################-->
 
   <!--################################## JOINTS ##################################-->
@@ -163,35 +164,6 @@
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <!--  -->
-
-  <!-- JOINT LEFT FROWARD ABAD TO BODY -->
-  <!-- <joint name="lf_abad_to_body" type="revolute">
-    <parent link="link_body"/>
-    <child link="link_lf_abad"/>
-    <axis xyz="0 1 0" />
-    <origin rpy="0 0 -1.5708" xyz="0.139 0.05 0"/>
-    <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
-  </joint> -->
-  <!--  -->
-
-  <!-- JOINT UPPER TO BODY -->
-  <!-- <joint name="joint_upper_to_body" type="revolute">
-    <parent link="link_body"/>
-    <child link="link_upper"/>
-    <axis xyz="1 0 0" />
-    <origin rpy="0 0 0" xyz="1 0 0"/>
-    <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
-  </joint> -->
-  <!--  -->
-
-  <!-- JOINT LOWER TO BODY -->
-  <!-- <joint name="joint_lower_to_body" type="revolute">
-    <parent link="link_body"/>
-    <child link="link_lower"/>
-    <axis xyz="1 0 0" />
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <limit effort="1000.0" lower="-1.57079" upper="1.57079" velocity="1" />
-  </joint> -->
-  <!--  -->
+  <!--############################################################################-->
 
 </robot>
