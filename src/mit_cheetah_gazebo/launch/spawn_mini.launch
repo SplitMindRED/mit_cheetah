@@ -2,13 +2,20 @@
 
 <launch>
 
-  <param name = "robot_description" command = "$(find xacro)/xacro --inorder '$(find mit_cheetah_gazebo)/description/test_mini.urdf' " />
-
   <arg name = "x" default = "0"/>
   <arg name = "y" default = "0"/>
   <arg name = "z" default = "0"/>
 
-  <node name = "my_robot_spawn" pkg = "gazebo_ros" type = "spawn_model" output = "screen" args = "-urdf -param robot_description -model test_mini -x $(arg x) -y $(arg y) -z $(arg z)"/>
+  <arg name = "P" default = "200.0"/>
+  <arg name = "I" default = "100.0"/>
+  <arg name = "D" default = "15.0"/>
+
+  <param name = "robot_description" command = "$(find xacro)/xacro --inorder '$(find mit_cheetah_gazebo)/description/mini_cheetah.urdf' " />
+
+  <rosparam file = "$(find mit_cheetah_gazebo)/description/config/ros_control_config.yaml" command = "load" subst_value="true"/>
+  <node name = "controller_spawner" pkg = "controller_manager" type = "spawner" ns = "/mini_cheetah" args="joint_state_controller servo_0_joint_position_controller" />
+
+  <node name = "my_robot_spawn" pkg = "gazebo_ros" type = "spawn_model" output = "screen" args = "-urdf -param robot_description -model mini_cheetah -x $(arg x) -y $(arg y) -z $(arg z)"/>
 
   <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "robot_state_publisher" />
 
