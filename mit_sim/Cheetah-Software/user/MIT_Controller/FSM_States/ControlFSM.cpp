@@ -5,8 +5,9 @@
  * of the states.
  */
 
-#include "ControlFSM.h"
 #include <rt/rt_rc_interface.h>
+
+#include "ControlFSM.h"
 
 /**
  * Constructor for the Control FSM. Passes in all of the necessary
@@ -21,14 +22,10 @@
  * @param controlParameters passes in the control parameters from the GUI
  */
 template <typename T>
-ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped,
-                          StateEstimatorContainer<T>* _stateEstimator,
-                          LegController<T>* _legController,
-                          GaitScheduler<T>* _gaitScheduler,
-                          DesiredStateCommand<T>* _desiredStateCommand,
-                          RobotControlParameters* controlParameters,
-                          VisualizationData* visualizationData,
-                          MIT_UserParameters* userParameters)
+ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped, StateEstimatorContainer<T>* _stateEstimator,
+                          LegController<T>* _legController, GaitScheduler<T>* _gaitScheduler,
+                          DesiredStateCommand<T>* _desiredStateCommand, RobotControlParameters* controlParameters,
+                          VisualizationData* visualizationData, MIT_UserParameters* userParameters)
 {
   // Add the pointers to the ControlFSMData struct
   data._quadruped = _quadruped;
@@ -64,7 +61,8 @@ ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped,
  * Passive state and Normal operation mode.
  */
 template <typename T>
-void ControlFSM<T>::initialize() {
+void ControlFSM<T>::initialize()
+{
   // Initialize a new FSM State with the control data
   currentState = statesList.passive;
 
@@ -84,48 +82,58 @@ void ControlFSM<T>::initialize() {
  * the regular state behavior if all is normal.
  */
 template <typename T>
-void ControlFSM<T>::runFSM() {
+void ControlFSM<T>::runFSM()
+{
   // Publish state estimator data to other computer
-  //for(size_t i(0); i<3; ++i){
-    //_state_estimator.p[i] = data._stateEstimator->getResult().position[i];
-    //_state_estimator.quat[i] = data._stateEstimator->getResult().orientation[i];
+  // for(size_t i(0); i<3; ++i){
+  //_state_estimator.p[i] = data._stateEstimator->getResult().position[i];
+  //_state_estimator.quat[i] = data._stateEstimator->getResult().orientation[i];
   //}
-    //_state_estimator.quat[3] = data._stateEstimator->getResult().orientation[3];
-  //state_estimator_lcm.publish("state_estimator_ctrl_pc", &_state_estimator);
+  //_state_estimator.quat[3] = data._stateEstimator->getResult().orientation[3];
+  // state_estimator_lcm.publish("state_estimator_ctrl_pc", &_state_estimator);
 
   // Check the robot state for safe operation
   operatingMode = safetyPreCheck();
 
-  if(data.controlParameters->use_rc){
+  if (data.controlParameters->use_rc)
+  {
     int rc_mode = data._desiredStateCommand->rcCommand->mode;
-    if(rc_mode == RC_mode::RECOVERY_STAND){
+    if (rc_mode == RC_mode::RECOVERY_STAND)
+    {
       data.controlParameters->control_mode = K_RECOVERY_STAND;
-
-    } else if(rc_mode == RC_mode::LOCOMOTION){
+    }
+    else if (rc_mode == RC_mode::LOCOMOTION)
+    {
       data.controlParameters->control_mode = K_LOCOMOTION;
-
-    } else if(rc_mode == RC_mode::QP_STAND){
+    }
+    else if (rc_mode == RC_mode::QP_STAND)
+    {
       data.controlParameters->control_mode = K_BALANCE_STAND;
-
-    } else if(rc_mode == RC_mode::VISION){
+    }
+    else if (rc_mode == RC_mode::VISION)
+    {
       data.controlParameters->control_mode = K_VISION;
-
-    } else if(rc_mode == RC_mode::BACKFLIP || rc_mode == RC_mode::BACKFLIP_PRE){
+    }
+    else if (rc_mode == RC_mode::BACKFLIP || rc_mode == RC_mode::BACKFLIP_PRE)
+    {
       data.controlParameters->control_mode = K_BACKFLIP;
-   }
-      //data.controlParameters->control_mode = K_FRONTJUMP;
-    //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
+    }
+    // data.controlParameters->control_mode = K_FRONTJUMP;
+    // std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
   }
 
   // Run the robot control code if operating mode is not unsafe
-  if (operatingMode != FSM_OperatingMode::ESTOP) {
+  if (operatingMode != FSM_OperatingMode::ESTOP)
+  {
     // Run normal controls if no transition is detected
-    if (operatingMode == FSM_OperatingMode::NORMAL) {
+    if (operatingMode == FSM_OperatingMode::NORMAL)
+    {
       // Check the current state for any transition
       nextStateName = currentState->checkTransition();
 
       // Detect a commanded transition
-      if (nextStateName != currentState->stateName) {
+      if (nextStateName != currentState->stateName)
+      {
         // Set the FSM operating mode to transitioning
         operatingMode = FSM_OperatingMode::TRANSITIONING;
 
@@ -133,28 +141,31 @@ void ControlFSM<T>::runFSM() {
         nextState = getNextState(nextStateName);
 
         // Print transition initialized info
-        //printInfo(1);
-
-      } else {
+        // printInfo(1);
+      }
+      else
+      {
         // Run the iteration for the current state normally
         currentState->run();
       }
     }
 
     // Run the transition code while transition is occuring
-    if (operatingMode == FSM_OperatingMode::TRANSITIONING) {
+    if (operatingMode == FSM_OperatingMode::TRANSITIONING)
+    {
       transitionData = currentState->transition();
 
       // Check the robot state for safe operation
       safetyPostCheck();
 
       // Run the state transition
-      if (transitionData.done) {
+      if (transitionData.done)
+      {
         // Exit the current state cleanly
         currentState->onExit();
 
         // Print finalizing transition info
-        //printInfo(2);
+        // printInfo(2);
 
         // Complete the transition
         currentState = nextState;
@@ -165,12 +176,15 @@ void ControlFSM<T>::runFSM() {
         // Return the FSM to normal operation mode
         operatingMode = FSM_OperatingMode::NORMAL;
       }
-    } else {
+    }
+    else
+    {
       // Check the robot state for safe operation
       safetyPostCheck();
     }
-
-  } else { // if ESTOP
+  }
+  else
+  {  // if ESTOP
     currentState = statesList.passive;
     currentState->onEnter();
     nextStateName = currentState->stateName;
@@ -191,10 +205,13 @@ void ControlFSM<T>::runFSM() {
  * @return the appropriate operating mode
  */
 template <typename T>
-FSM_OperatingMode ControlFSM<T>::safetyPreCheck() {
+FSM_OperatingMode ControlFSM<T>::safetyPreCheck()
+{
   // Check for safe orientation if the current state requires it
-  if (currentState->checkSafeOrientation && data.controlParameters->control_mode != K_RECOVERY_STAND) {
-    if (!safetyChecker->checkSafeOrientation()) {
+  if (currentState->checkSafeOrientation && data.controlParameters->control_mode != K_RECOVERY_STAND)
+  {
+    if (!safetyChecker->checkSafeOrientation())
+    {
       operatingMode = FSM_OperatingMode::ESTOP;
       std::cout << "broken: Orientation Safety Ceck FAIL" << std::endl;
     }
@@ -215,14 +232,17 @@ FSM_OperatingMode ControlFSM<T>::safetyPreCheck() {
  * @return the appropriate operating mode
  */
 template <typename T>
-FSM_OperatingMode ControlFSM<T>::safetyPostCheck() {
+FSM_OperatingMode ControlFSM<T>::safetyPostCheck()
+{
   // Check for safe desired foot positions
-  if (currentState->checkPDesFoot) {
+  if (currentState->checkPDesFoot)
+  {
     safetyChecker->checkPDesFoot();
   }
 
   // Check for safe desired feedforward forces
-  if (currentState->checkForceFeedForward) {
+  if (currentState->checkForceFeedForward)
+  {
     safetyChecker->checkForceFeedForward();
   }
 
@@ -237,9 +257,11 @@ FSM_OperatingMode ControlFSM<T>::safetyPostCheck() {
  * @return next FSM state
  */
 template <typename T>
-FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
+FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName)
+{
   // Choose the correct FSM State by enumerated state name
-  switch (stateName) {
+  switch (stateName)
+  {
     case FSM_StateName::INVALID:
       return statesList.invalid;
 
@@ -286,32 +308,34 @@ FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
  * @param printing mode option for regular or an event
  */
 template <typename T>
-void ControlFSM<T>::printInfo(int opt) {
-  switch (opt) {
+void ControlFSM<T>::printInfo(int opt)
+{
+  switch (opt)
+  {
     case 0:  // Normal printing case at regular intervals
       // Increment printing iteration
       printIter++;
 
       // Print at commanded frequency
-      if (printIter == printNum) {
+      if (printIter == printNum)
+      {
         std::cout << "[CONTROL FSM] Printing FSM Info...\n";
-        std::cout
-            << "---------------------------------------------------------\n";
+        std::cout << "---------------------------------------------------------\n";
         std::cout << "Iteration: " << iter << "\n";
-        if (operatingMode == FSM_OperatingMode::NORMAL) {
-          std::cout << "Operating Mode: NORMAL in " << currentState->stateString
-                    << "\n";
-
-        } else if (operatingMode == FSM_OperatingMode::TRANSITIONING) {
-          std::cout << "Operating Mode: TRANSITIONING from "
-                    << currentState->stateString << " to "
+        if (operatingMode == FSM_OperatingMode::NORMAL)
+        {
+          std::cout << "Operating Mode: NORMAL in " << currentState->stateString << "\n";
+        }
+        else if (operatingMode == FSM_OperatingMode::TRANSITIONING)
+        {
+          std::cout << "Operating Mode: TRANSITIONING from " << currentState->stateString << " to "
                     << nextState->stateString << "\n";
-
-        } else if (operatingMode == FSM_OperatingMode::ESTOP) {
+        }
+        else if (operatingMode == FSM_OperatingMode::ESTOP)
+        {
           std::cout << "Operating Mode: ESTOP\n";
         }
-        std::cout << "Gait Type: " << data._gaitScheduler->gaitData.gaitName
-                  << "\n";
+        std::cout << "Gait Type: " << data._gaitScheduler->gaitData.gaitName << "\n";
         std::cout << std::endl;
 
         // Reset iteration counter
@@ -325,17 +349,15 @@ void ControlFSM<T>::printInfo(int opt) {
       break;
 
     case 1:  // Initializing FSM State transition
-      std::cout << "[CONTROL FSM] Transition initialized from "
-                << currentState->stateString << " to " << nextState->stateString
-                << "\n"
+      std::cout << "[CONTROL FSM] Transition initialized from " << currentState->stateString << " to "
+                << nextState->stateString << "\n"
                 << std::endl;
 
       break;
 
     case 2:  // Finalizing FSM State transition
-      std::cout << "[CONTROL FSM] Transition finalizing from "
-                << currentState->stateString << " to " << nextState->stateString
-                << "\n"
+      std::cout << "[CONTROL FSM] Transition finalizing from " << currentState->stateString << " to "
+                << nextState->stateString << "\n"
                 << std::endl;
 
       break;

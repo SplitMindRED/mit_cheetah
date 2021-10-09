@@ -13,10 +13,18 @@
   <param name = "robot_description" command = "$(find xacro)/xacro --inorder '$(find mit_cheetah_gazebo)/description/mini_cheetah.urdf' " />
 
   <rosparam file = "$(find mit_cheetah_gazebo)/description/config/ros_control_config.yaml" command = "load" subst_value="true"/>
+
   <node name = "controller_spawner" pkg = "controller_manager" type = "spawner" ns = "/mini_cheetah" args="joint_state_controller servo_0_joint_position_controller" />
 
   <node name = "my_robot_spawn" pkg = "gazebo_ros" type = "spawn_model" output = "screen" args = "-urdf -param robot_description -model mini_cheetah -x $(arg x) -y $(arg y) -z $(arg z)"/>
 
-  <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "robot_state_publisher" />
+  <!-- publish form topic /joint_state to tf tree -->
+  <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "robot_state_publisher">
+    <remap from="joint_states" to="mini_cheetah/joint_states" />
+  </node>
+
+  <!-- takes values from urdf and publish to /joint states -->
+  <!-- <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
+
 
 </launch>

@@ -13,14 +13,11 @@
  * @param stateStringIn the string name of the current FSM state
  */
 template <typename T>
-FSM_State<T>::FSM_State(ControlFSMData<T>* _controlFSMData,
-                        FSM_StateName stateNameIn, std::string stateStringIn)
-    : _data(_controlFSMData),
-      stateName(stateNameIn),
-      stateString(stateStringIn) {
+FSM_State<T>::FSM_State(ControlFSMData<T>* _controlFSMData, FSM_StateName stateNameIn, std::string stateStringIn)
+  : _data(_controlFSMData), stateName(stateNameIn), stateString(stateStringIn)
+{
   transitionData.zero();
-  std::cout << "[FSM_State] Initialized FSM state: " << stateStringIn
-            << std::endl;
+  std::cout << "[FSM_State] Initialized FSM state: " << stateStringIn << std::endl;
 }
 
 /**
@@ -31,9 +28,8 @@ FSM_State<T>::FSM_State(ControlFSMData<T>* _controlFSMData,
  * @param dqDes desired joint velocity
  */
 template <typename T>
-void FSM_State<T>::jointPDControl(
-    int leg, Vec3<T> qDes, Vec3<T> qdDes) {
-
+void FSM_State<T>::jointPDControl(int leg, Vec3<T> qDes, Vec3<T> qdDes)
+{
   kpMat << 80, 0, 0, 0, 80, 0, 0, 0, 80;
   kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 
@@ -54,15 +50,12 @@ void FSM_State<T>::jointPDControl(
  * @param kd_cartesian D gains
  */
 template <typename T>
-void FSM_State<T>::cartesianImpedanceControl(int leg, Vec3<T> pDes,
-                                             Vec3<T> vDes,
-                                             Vec3<double> kp_cartesian,
-                                             Vec3<double> kd_cartesian) {
+void FSM_State<T>::cartesianImpedanceControl(int leg, Vec3<T> pDes, Vec3<T> vDes, Vec3<double> kp_cartesian,
+                                             Vec3<double> kd_cartesian)
+{
   _data->_legController->commands[leg].pDes = pDes;
   // Create the cartesian P gain matrix
-  kpMat << kp_cartesian[0], 0, 0, 0,
-      kp_cartesian[1], 0, 0, 0,
-      kp_cartesian[2];
+  kpMat << kp_cartesian[0], 0, 0, 0, kp_cartesian[1], 0, 0, 0, kp_cartesian[2];
   _data->_legController->commands[leg].kpCartesian = kpMat;
 
   _data->_legController->commands[leg].vDes = vDes;
@@ -131,7 +124,8 @@ velDes +                             // Raibert Heuristic timeStance / 2 *
  * as well as converting them to leg controller understandable values.
  */
 template <typename T>
-void FSM_State<T>::runControls() {
+void FSM_State<T>::runControls()
+{
   // This option should be set from the user interface or autonomously
   // eventually
   int CONTROLLER_OPTION = 1;
@@ -141,57 +135,61 @@ void FSM_State<T>::runControls() {
   footstepLocations = Mat34<T>::Zero();
 
   // Choose the controller to run for picking step locations and balance forces
-  if (CONTROLLER_OPTION == 0) {
+  if (CONTROLLER_OPTION == 0)
+  {
     // Test to make sure we can control the robot
     // Test to make sure we can control the robot these will be calculated by
     // the controllers
-    for (int leg = 0; leg < 4; leg++) {
+    for (int leg = 0; leg < 4; leg++)
+    {
       footFeedForwardForces.col(leg) << 0.0, 0.0, 0;  //-220.36;
       // footFeedForwardForces.col(leg) = stateEstimate.rBody *
       // footFeedForwardForces.col(leg);
 
-      footstepLocations.col(leg) << 0.0, 0.0,
-          -_data->_quadruped->_maxLegLength / 2;
+      footstepLocations.col(leg) << 0.0, 0.0, -_data->_quadruped->_maxLegLength / 2;
     }
-  } else if (CONTROLLER_OPTION == 1) {
+  }
+  else if (CONTROLLER_OPTION == 1)
+  {
     // QP Balance Controller
     runBalanceController();
 
     // Swing foot landing positions are calculated with heuristics
-    for (int leg = 0; leg < 4; leg++) {
-      footstepLocations.col(leg) << 0.0, 0.0,
-          -_data->_quadruped->_maxLegLength / 2;
+    for (int leg = 0; leg < 4; leg++)
+    {
+      footstepLocations.col(leg) << 0.0, 0.0, -_data->_quadruped->_maxLegLength / 2;
     }  // footstepHeuristicPlacement();
-
-  } else if (CONTROLLER_OPTION == 2) {
+  }
+  else if (CONTROLLER_OPTION == 2)
+  {
     // WBC
     runWholeBodyController();
-
-  } else if (CONTROLLER_OPTION == 3) {
+  }
+  else if (CONTROLLER_OPTION == 3)
+  {
     // cMPC
     runConvexModelPredictiveController();
 
     // Swing foot landing positions are calculated with heuristics
     // footstepHeuristicPlacement();
-
-  } else if (CONTROLLER_OPTION == 4) {
+  }
+  else if (CONTROLLER_OPTION == 4)
+  {
     // RPC
     runRegularizedPredictiveController();
-
-  } else {
+  }
+  else
+  {
     // Zero out the commands if a controller was not selected
-    jointFeedForwardTorques =
-        Mat34<float>::Zero();                // feed forward joint torques
-    jointPositions = Mat34<float>::Zero();   // joint angle positions
-    jointVelocities = Mat34<float>::Zero();  // joint angular velocities
-    footFeedForwardForces =
-        Mat34<float>::Zero();              // feedforward forces at the feet
-    footPositions = Mat34<float>::Zero();  // cartesian foot positions
+    jointFeedForwardTorques = Mat34<float>::Zero();  // feed forward joint torques
+    jointPositions = Mat34<float>::Zero();           // joint angle positions
+    jointVelocities = Mat34<float>::Zero();          // joint angular velocities
+    footFeedForwardForces = Mat34<float>::Zero();    // feedforward forces at the feet
+    footPositions = Mat34<float>::Zero();            // cartesian foot positions
     footVelocities = Mat34<float>::Zero();
 
     // Print an error message
-    std::cout << "[FSM_State] ERROR: No known controller was selected: "
-              << CONTROLLER_OPTION << std::endl;
+    std::cout << "[FSM_State] ERROR: No known controller was selected: " << CONTROLLER_OPTION << std::endl;
   }
 }
 
@@ -199,39 +197,41 @@ void FSM_State<T>::runControls() {
  *
  */
 template <typename T>
-void FSM_State<T>::runBalanceController() {
+void FSM_State<T>::runBalanceController()
+{
   double minForce = 25;
   double maxForce = 500;
   double contactStateScheduled[4];  // = {1, 1, 1, 1};
-  for (int i = 0; i < 4; i++) {
-    contactStateScheduled[i] =
-        _data->_gaitScheduler->gaitData.contactStateScheduled(i);
+  for (int i = 0; i < 4; i++)
+  {
+    contactStateScheduled[i] = _data->_gaitScheduler->gaitData.contactStateScheduled(i);
   }
 
   double minForces[4];  // = {minForce, minForce, minForce, minForce};
   double maxForces[4];  // = {maxForce, maxForce, maxForce, maxForce};
-  for (int leg = 0; leg < 4; leg++) {
+  for (int leg = 0; leg < 4; leg++)
+  {
     minForces[leg] = contactStateScheduled[leg] * minForce;
     maxForces[leg] = contactStateScheduled[leg] * maxForce;
   }
 
-  double COM_weights_stance[3] = {1, 1, 10};
-  double Base_weights_stance[3] = {20, 10, 10};
-  double pFeet[12], p_des[3], p_act[3], v_des[3], v_act[3], O_err[3], rpy[3],
-      omegaDes[3];
+  double COM_weights_stance[3] = { 1, 1, 10 };
+  double Base_weights_stance[3] = { 20, 10, 10 };
+  double pFeet[12], p_des[3], p_act[3], v_des[3], v_act[3], O_err[3], rpy[3], omegaDes[3];
   double se_xfb[13];
   double kpCOM[3], kdCOM[3], kpBase[3], kdBase[3];
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++)
+  {
     se_xfb[i] = (double)_data->_stateEstimator->getResult().orientation(i);
   }
   // se_xfb[3] = 1.0;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     rpy[i] = 0;  //(double)_data->_stateEstimator->getResult().rpy(i);
     p_des[i] = (double)_data->_stateEstimator->getResult().position(i);
     p_act[i] = (double)_data->_stateEstimator->getResult().position(i);
-    omegaDes[i] =
-        0;  //(double)_data->_stateEstimator->getResult().omegaBody(i);
+    omegaDes[i] = 0;  //(double)_data->_stateEstimator->getResult().omegaBody(i);
     v_act[i] = (double)_data->_stateEstimator->getResult().vBody(i);
     v_des[i] = (double)_data->_stateEstimator->getResult().vBody(i);
 
@@ -249,22 +249,21 @@ void FSM_State<T>::runBalanceController() {
   Vec3<T> pFeetVec;
   Vec3<T> pFeetVecCOM;
   // Get the foot locations relative to COM
-  for (int leg = 0; leg < 4; leg++) {
-    computeLegJacobianAndPosition(**&_data->_quadruped,
-                                  _data->_legController->datas[leg].q,
-                                  (Mat3<T>*)nullptr, &pFeetVec, 1);
-    //pFeetVecCOM = _data->_stateEstimator->getResult().rBody.transpose() *
-                  //(_data->_quadruped->getHipLocation(leg) + pFeetVec);
+  for (int leg = 0; leg < 4; leg++)
+  {
+    computeLegJacobianAndPosition(**&_data->_quadruped, _data->_legController->datas[leg].q, (Mat3<T>*)nullptr,
+                                  &pFeetVec, 1);
+    // pFeetVecCOM = _data->_stateEstimator->getResult().rBody.transpose() *
+    //(_data->_quadruped->getHipLocation(leg) + pFeetVec);
 
     pFeetVecCOM = _data->_stateEstimator->getResult().rBody.transpose() *
                   (_data->_quadruped->getHipLocation(leg) + _data->_legController->datas[leg].p);
-
 
     pFeet[leg * 3] = (double)pFeetVecCOM[0];
     pFeet[leg * 3 + 1] = (double)pFeetVecCOM[1];
     pFeet[leg * 3 + 2] = (double)pFeetVecCOM[2];
   }
-  
+
   balanceController.set_alpha_control(0.01);
   balanceController.set_friction(0.5);
   balanceController.set_mass(46.0);
@@ -272,8 +271,7 @@ void FSM_State<T>::runBalanceController() {
   balanceController.set_PDgains(kpCOM, kdCOM, kpBase, kdBase);
   balanceController.set_desiredTrajectoryData(rpy, p_des, omegaDes, v_des);
   balanceController.SetContactData(contactStateScheduled, minForces, maxForces);
-  balanceController.updateProblemData(se_xfb, pFeet, p_des, p_act, v_des, v_act,
-                                      O_err, 0.0);
+  balanceController.updateProblemData(se_xfb, pFeet, p_des, p_act, v_des, v_act, O_err, 0.0);
 
   double fOpt[12];
   balanceController.solveQP_nonThreaded(fOpt);
@@ -282,9 +280,9 @@ void FSM_State<T>::runBalanceController() {
   balanceController.publish_data_lcm();
 
   // Copy the results to the feed forward forces
-  for (int leg = 0; leg < 4; leg++) {
-    footFeedForwardForces.col(leg) << (T)fOpt[leg * 3], (T)fOpt[leg * 3 + 1],
-        (T)fOpt[leg * 3 + 2];
+  for (int leg = 0; leg < 4; leg++)
+  {
+    footFeedForwardForces.col(leg) << (T)fOpt[leg * 3], (T)fOpt[leg * 3 + 1], (T)fOpt[leg * 3 + 2];
   }
 }
 
@@ -293,7 +291,8 @@ void FSM_State<T>::runBalanceController() {
  * as well as converting them to leg controller understandable values.
  */
 template <typename T>
-void FSM_State<T>::turnOnAllSafetyChecks() {
+void FSM_State<T>::turnOnAllSafetyChecks()
+{
   // Pre controls safety checks
   checkSafeOrientation = true;  // check roll and pitch
 
@@ -307,7 +306,8 @@ void FSM_State<T>::turnOnAllSafetyChecks() {
  *
  */
 template <typename T>
-void FSM_State<T>::turnOffAllSafetyChecks() {
+void FSM_State<T>::turnOffAllSafetyChecks()
+{
   // Pre controls safety checks
   checkSafeOrientation = false;  // check roll and pitch
 

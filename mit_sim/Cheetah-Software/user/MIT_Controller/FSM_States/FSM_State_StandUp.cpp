@@ -14,8 +14,8 @@
  */
 template <typename T>
 FSM_State_StandUp<T>::FSM_State_StandUp(ControlFSMData<T>* _controlFSMData)
-    : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"),
-_ini_foot_pos(4){
+  : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"), _ini_foot_pos(4)
+{
   // Do nothing
   // Set the pre controls safety checks
   this->checkSafeOrientation = false;
@@ -26,7 +26,8 @@ _ini_foot_pos(4){
 }
 
 template <typename T>
-void FSM_State_StandUp<T>::onEnter() {
+void FSM_State_StandUp<T>::onEnter()
+{
   // Default is to not transition
   this->nextStateName = this->stateName;
 
@@ -36,7 +37,8 @@ void FSM_State_StandUp<T>::onEnter() {
   // Reset iteration counter
   iter = 0;
 
-  for(size_t leg(0); leg<4; ++leg){
+  for (size_t leg(0); leg < 4; ++leg)
+  {
     _ini_foot_pos[leg] = this->_data->_legController->datas[leg].p;
   }
 }
@@ -45,21 +47,25 @@ void FSM_State_StandUp<T>::onEnter() {
  * Calls the functions to be executed on each control loop iteration.
  */
 template <typename T>
-void FSM_State_StandUp<T>::run() {
-
-  if(this->_data->_quadruped->_robotType == RobotType::MINI_CHEETAH) {
+void FSM_State_StandUp<T>::run()
+{
+  if (this->_data->_quadruped->_robotType == RobotType::MINI_CHEETAH)
+  {
     T hMax = 0.25;
     T progress = 2 * iter * this->_data->controlParameters->controller_dt;
 
-    if (progress > 1.){ progress = 1.; }
+    if (progress > 1.)
+    {
+      progress = 1.;
+    }
 
-    for(int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
       this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
       this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
 
       this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
-      this->_data->_legController->commands[i].pDes[2] = 
-        progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
+      this->_data->_legController->commands[i].pDes[2] = progress * (-hMax) + (1. - progress) * _ini_foot_pos[i][2];
     }
   }
 }
@@ -71,12 +77,14 @@ void FSM_State_StandUp<T>::run() {
  * @return the enumerated FSM state name to transition into
  */
 template <typename T>
-FSM_StateName FSM_State_StandUp<T>::checkTransition() {
+FSM_StateName FSM_State_StandUp<T>::checkTransition()
+{
   this->nextStateName = this->stateName;
   iter++;
 
   // Switch FSM control mode
-  switch ((int)this->_data->controlParameters->control_mode) {
+  switch ((int)this->_data->controlParameters->control_mode)
+  {
     case K_STAND_UP:
       break;
     case K_BALANCE_STAND:
@@ -91,14 +99,12 @@ FSM_StateName FSM_State_StandUp<T>::checkTransition() {
       this->nextStateName = FSM_StateName::VISION;
       break;
 
-
     case K_PASSIVE:  // normal c
       this->nextStateName = FSM_StateName::PASSIVE;
       break;
 
     default:
-      std::cout << "[CONTROL FSM] Bad Request: Cannot transition from "
-                << K_PASSIVE << " to "
+      std::cout << "[CONTROL FSM] Bad Request: Cannot transition from " << K_PASSIVE << " to "
                 << this->_data->controlParameters->control_mode << std::endl;
   }
 
@@ -113,9 +119,11 @@ FSM_StateName FSM_State_StandUp<T>::checkTransition() {
  * @return true if transition is complete
  */
 template <typename T>
-TransitionData<T> FSM_State_StandUp<T>::transition() {
+TransitionData<T> FSM_State_StandUp<T>::transition()
+{
   // Finish Transition
-  switch (this->nextStateName) {
+  switch (this->nextStateName)
+  {
     case FSM_StateName::PASSIVE:  // normal
       this->transitionData.done = true;
       break;
@@ -132,10 +140,8 @@ TransitionData<T> FSM_State_StandUp<T>::transition() {
       this->transitionData.done = true;
       break;
 
-
     default:
-      std::cout << "[CONTROL FSM] Something went wrong in transition"
-                << std::endl;
+      std::cout << "[CONTROL FSM] Something went wrong in transition" << std::endl;
   }
 
   // Return the transition data to the FSM
@@ -146,7 +152,8 @@ TransitionData<T> FSM_State_StandUp<T>::transition() {
  * Cleans up the state information on exiting the state.
  */
 template <typename T>
-void FSM_State_StandUp<T>::onExit() {
+void FSM_State_StandUp<T>::onExit()
+{
   // Nothing to clean up when exiting
 }
 

@@ -7,9 +7,11 @@
  */
 
 #include <main_helper.h>
+
 #include "Leg_InvDyn_Controller.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   main_helper(argc, argv, new Leg_InvDyn_Controller());
   return 0;
 }

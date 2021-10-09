@@ -8,30 +8,31 @@
 #ifndef PROJECT_ROBOTRUNNER_H
 #define PROJECT_ROBOTRUNNER_H
 
+#include <lcm-cpp.hpp>
+
 #include "ControlParameters/ControlParameterInterface.h"
 #include "ControlParameters/RobotParameters.h"
-#include "Controllers/StateEstimatorContainer.h"
-#include "SimUtilities/IMUTypes.h"
-#include "rt/rt_rc_interface.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/DesiredStateCommand.h"
 #include "Controllers/LegController.h"
+#include "Controllers/StateEstimatorContainer.h"
 #include "Dynamics/Quadruped.h"
 #include "JPosInitializer.h"
-
+#include "RobotController.h"
 #include "SimUtilities/GamepadCommand.h"
+#include "SimUtilities/IMUTypes.h"
 #include "SimUtilities/VisualizationData.h"
 #include "Utilities/PeriodicTask.h"
 #include "cheetah_visualization_lcmt.hpp"
+#include "rt/rt_rc_interface.h"
 #include "state_estimator_lcmt.hpp"
-#include "RobotController.h"
-#include <lcm-cpp.hpp>
 
-class RobotRunner : public PeriodicTask {
- public:
+class RobotRunner : public PeriodicTask
+{
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  RobotRunner(RobotController* , PeriodicTaskManager*, float, std::string);
+  RobotRunner(RobotController*, PeriodicTaskManager*, float, std::string);
   using PeriodicTask::PeriodicTask;
   void init() override;
   void run() override;
@@ -55,7 +56,7 @@ class RobotRunner : public PeriodicTask {
   VisualizationData* visualizationData;
   CheetahVisualization* cheetahMainVisualization;
 
- private:
+private:
   float _ini_yaw;
 
   int iter = 0;

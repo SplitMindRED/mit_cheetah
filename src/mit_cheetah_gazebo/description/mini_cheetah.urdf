@@ -180,9 +180,22 @@
     <actuator name = "joint_0">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
-    <joint name = "fl_abad_to_body">
+    <joint name = "fr_abad_to_body">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
   </transmission>
+  <!--  -->
+
+  <!-- servo 1 -->
+  <transmission name = "joint_1">
+    <type>transmission_interface/SimpleTransmision</type>
+    <actuator name = "joint_1">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name = "fr_upper_to_abad">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  <!--  -->
 
 </robot>

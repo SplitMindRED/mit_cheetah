@@ -120,6 +120,7 @@ void RobotRunner::run()
       // Controller
       if (!_jpos_initializer->IsInitialized(_legController))
       {
+        std::cout << "here" << std::endl;
         Mat3<float> kpMat;
         Mat3<float> kdMat;
         // Update the jpos feedback gains
@@ -238,6 +239,7 @@ void RobotRunner::finalizeStep()
   {
     assert(false);
   }
+
   _legController->setLcm(&leg_control_data_lcm, &leg_control_command_lcm);
   _stateEstimate.setLcm(state_estimator_lcm);
   _lcm.publish("leg_control_command", &leg_control_command_lcm);

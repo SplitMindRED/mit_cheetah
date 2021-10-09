@@ -11,28 +11,34 @@
 
 // FSM States
 #include "../FSM_States/FSM_State.h"
+#include "../FSM_States/FSM_State_BackFlip.h"
 #include "../FSM_States/FSM_State_BalanceStand.h"
+#include "../FSM_States/FSM_State_FrontJump.h"
 #include "../FSM_States/FSM_State_ImpedanceControl.h"
 #include "../FSM_States/FSM_State_JointPD.h"
 #include "../FSM_States/FSM_State_Locomotion.h"
 #include "../FSM_States/FSM_State_Passive.h"
-#include "../FSM_States/FSM_State_StandUp.h"
 #include "../FSM_States/FSM_State_RecoveryStand.h"
+#include "../FSM_States/FSM_State_StandUp.h"
 #include "../FSM_States/FSM_State_Vision.h"
-#include "../FSM_States/FSM_State_BackFlip.h"
-#include "../FSM_States/FSM_State_FrontJump.h"
 
 /**
  * Enumerate all of the operating modes
  */
-enum class FSM_OperatingMode { 
-  NORMAL, TRANSITIONING, ESTOP, EDAMP };
+enum class FSM_OperatingMode
+{
+  NORMAL,
+  TRANSITIONING,
+  ESTOP,
+  EDAMP
+};
 
 /**
  *
  */
 template <typename T>
-struct FSM_StatesList {
+struct FSM_StatesList
+{
   FSM_State<T>* invalid;
   FSM_State_Passive<T>* passive;
   FSM_State_JointPD<T>* jointPD;
@@ -46,27 +52,24 @@ struct FSM_StatesList {
   FSM_State_FrontJump<T>* frontJump;
 };
 
-
 /**
  *
  */
 template <typename T>
-struct FSM_ControllerList {
+struct FSM_ControllerList
+{
 };
-
 
 /**
  * Control FSM handles the FSM states from a higher level
  */
 template <typename T>
-class ControlFSM {
- public:
-  ControlFSM(Quadruped<T>* _quadruped,
-             StateEstimatorContainer<T>* _stateEstimator,
-             LegController<T>* _legController, GaitScheduler<T>* _gaitScheduler,
-             DesiredStateCommand<T>* _desiredStateCommand,
-             RobotControlParameters* controlParameters,
-             VisualizationData* visualizationData,
+class ControlFSM
+{
+public:
+  ControlFSM(Quadruped<T>* _quadruped, StateEstimatorContainer<T>* _stateEstimator, LegController<T>* _legController,
+             GaitScheduler<T>* _gaitScheduler, DesiredStateCommand<T>* _desiredStateCommand,
+             RobotControlParameters* controlParameters, VisualizationData* visualizationData,
              MIT_UserParameters* userParameters);
 
   // Initializes the Control FSM instance
@@ -101,7 +104,7 @@ class ControlFSM {
 
   TransitionData<T> transitionData;
 
- private:
+private:
   // Operating mode of the FSM
   FSM_OperatingMode operatingMode;
 
@@ -113,8 +116,8 @@ class ControlFSM {
 
   int iter = 0;
 
-  //lcm::LCM state_estimator_lcm;
-  //state_estimator_lcmt _state_estimator;
+  // lcm::LCM state_estimator_lcm;
+  // state_estimator_lcmt _state_estimator;
 };
 
 #endif  // CONTROLFSM_H

@@ -4,16 +4,16 @@
  * Periodic tasks have a task manager, which measure how long they take to run.
  */
 #ifdef linux
- #include <sys/timerfd.h>
+#include <sys/timerfd.h>
 #endif
 
 #include <unistd.h>
+
 #include <cmath>
 
 #include "Utilities/PeriodicTask.h"
 #include "Utilities/Timer.h"
 #include "Utilities/Utilities_print.h"
-
 
 /*!
  * Construct a new task within a TaskManager
@@ -21,19 +21,20 @@
  * @param period : how often to run
  * @param name : name of task
  */
-PeriodicTask::PeriodicTask(PeriodicTaskManager* taskManager, float period,
-                           std::string name)
-    : _period(period), _name(name) {
+PeriodicTask::PeriodicTask(PeriodicTaskManager* taskManager, float period, std::string name)
+  : _period(period), _name(name)
+{
   taskManager->addTask(this);
 }
 
 /*!
  * Begin running task
  */
-void PeriodicTask::start() {
-  if (_running) {
-    printf("[PeriodicTask] Tried to start %s but it was already running!\n",
-           _name.c_str());
+void PeriodicTask::start()
+{
+  if (_running)
+  {
+    printf("[PeriodicTask] Tried to start %s but it was already running!\n", _name.c_str());
     return;
   }
   init();
@@ -44,10 +45,11 @@ void PeriodicTask::start() {
 /*!
  * Stop running task
  */
-void PeriodicTask::stop() {
-  if (!_running) {
-    printf("[PeriodicTask] Tried to stop %s but it wasn't running!\n",
-           _name.c_str());
+void PeriodicTask::stop()
+{
+  if (!_running)
+  {
+    printf("[PeriodicTask] Tried to stop %s but it wasn't running!\n", _name.c_str());
     return;
   }
   _running = false;
@@ -60,14 +62,16 @@ void PeriodicTask::stop() {
 /*!
  * If max period is more than 30% over desired period, it is slow
  */
-bool PeriodicTask::isSlow() {
+bool PeriodicTask::isSlow()
+{
   return _maxPeriod > _period * 1.3f || _maxRuntime > _period;
 }
 
 /*!
  * Reset max statistics
  */
-void PeriodicTask::clearMax() {
+void PeriodicTask::clearMax()
+{
   _maxPeriod = 0;
   _maxRuntime = 0;
 }
@@ -75,22 +79,27 @@ void PeriodicTask::clearMax() {
 /*!
  * Print the status of this task in the table format
  */
-void PeriodicTask::printStatus() {
-  if (!_running) return;
-  if (isSlow()) {
-    printf_color(PrintColor::Red, "|%-20s|%6.4f|%6.4f|%6.4f|%6.4f|%6.4f\n",
-                 _name.c_str(), _lastRuntime, _maxRuntime, _period,
-                 _lastPeriodTime, _maxPeriod);
-  } else {
-    printf("|%-20s|%6.4f|%6.4f|%6.4f|%6.4f|%6.4f\n", _name.c_str(),
-           _lastRuntime, _maxRuntime, _period, _lastPeriodTime, _maxPeriod);
+void PeriodicTask::printStatus()
+{
+  if (!_running)
+    return;
+  if (isSlow())
+  {
+    printf_color(PrintColor::Red, "|%-20s|%6.4f|%6.4f|%6.4f|%6.4f|%6.4f\n", _name.c_str(), _lastRuntime, _maxRuntime,
+                 _period, _lastPeriodTime, _maxPeriod);
+  }
+  else
+  {
+    printf("|%-20s|%6.4f|%6.4f|%6.4f|%6.4f|%6.4f\n", _name.c_str(), _lastRuntime, _maxRuntime, _period, _lastPeriodTime,
+           _maxPeriod);
   }
 }
 
 /*!
  * Call the task in a timed loop.  Uses a timerfd
  */
-void PeriodicTask::loopFunction() {
+void PeriodicTask::loopFunction()
+{
 #ifdef linux
   auto timerFd = timerfd_create(CLOCK_MONOTONIC, 0);
 #endif
@@ -110,9 +119,9 @@ void PeriodicTask::loopFunction() {
 #endif
   unsigned long long missed = 0;
 
-  printf("[PeriodicTask] Start %s (%d s, %d ns)\n", _name.c_str(), seconds,
-         nanoseconds);
-  while (_running) {
+  printf("[PeriodicTask] Start %s (%d s, %d ns)\n", _name.c_str(), seconds, nanoseconds);
+  while (_running)
+  {
     _lastPeriodTime = (float)t.getSeconds();
     t.start();
     run();
@@ -127,24 +136,28 @@ void PeriodicTask::loopFunction() {
   printf("[PeriodicTask] %s has stopped!\n", _name.c_str());
 }
 
-PeriodicTaskManager::~PeriodicTaskManager() {}
+PeriodicTaskManager::~PeriodicTaskManager()
+{
+}
 
 /*!
  * Add a new task to a task manager
  */
-void PeriodicTaskManager::addTask(PeriodicTask* task) {
+void PeriodicTaskManager::addTask(PeriodicTask* task)
+{
   _tasks.push_back(task);
 }
 
 /*!
  * Print the status of all tasks and rest max statistics
  */
-void PeriodicTaskManager::printStatus() {
+void PeriodicTaskManager::printStatus()
+{
   printf("\n----------------------------TASKS----------------------------\n");
-  printf("|%-20s|%-6s|%-6s|%-6s|%-6s|%-6s\n", "name", "rt", "rt-max", "T-des",
-         "T-act", "T-max");
+  printf("|%-20s|%-6s|%-6s|%-6s|%-6s|%-6s\n", "name", "rt", "rt-max", "T-des", "T-act", "T-max");
   printf("-----------------------------------------------------------\n");
-  for (auto& task : _tasks) {
+  for (auto& task : _tasks)
+  {
     task->printStatus();
     task->clearMax();
   }
@@ -154,9 +167,12 @@ void PeriodicTaskManager::printStatus() {
 /*!
  * Print only the slow tasks
  */
-void PeriodicTaskManager::printStatusOfSlowTasks() {
-  for (auto& task : _tasks) {
-    if (task->isSlow()) {
+void PeriodicTaskManager::printStatusOfSlowTasks()
+{
+  for (auto& task : _tasks)
+  {
+    if (task->isSlow())
+    {
       task->printStatus();
       task->clearMax();
     }
@@ -166,8 +182,10 @@ void PeriodicTaskManager::printStatusOfSlowTasks() {
 /*!
  * Stop all tasks
  */
-void PeriodicTaskManager::stopAll() {
-  for (auto& task : _tasks) {
+void PeriodicTaskManager::stopAll()
+{
+  for (auto& task : _tasks)
+  {
     task->stop();
   }
 }
