@@ -326,7 +326,7 @@ void VnSearcher_findPorts_LINUX(char*** portNamesOut, int32_t* numPortsFound)
 	while(index < MAX_PORTS)
 	{
 		/* Create the port name for reading. */
-		sprintf(portName, "/dev/ttyUSB%u", (unsigned int) index);
+        sprintf(portName, "/dev/input/js%u", (unsigned int) index);
 
 		/* Attempt to open the serial port */
 		portFd = open(portName,

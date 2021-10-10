@@ -10,6 +10,7 @@
 #include "MIT_Controller.hpp"
 
 int main(int argc, char** argv) {
+  ros::init(argc, argv, "mit_controll_publisher");
   main_helper(argc, argv, new MIT_Controller());
   return 0;
 }

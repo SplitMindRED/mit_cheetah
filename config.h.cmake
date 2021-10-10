@@ -2,5 +2,6 @@
 #define CTRL_CONFIG_H
 
 #define THIS_COM "@THIS_COM@"
+#define SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@"
 
 #endif

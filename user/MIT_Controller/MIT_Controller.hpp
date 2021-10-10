@@ -6,6 +6,8 @@
 #include "Controllers/ContactEstimator.h"
 #include "FSM_States/ControlFSM.h"
 #include "MIT_UserParameters.h"
+#include <ros/ros.h>
+#include <trajectory_msgs/JointTrajectory.h>
 //#include <gui_main_control_settings_t.hpp>
 
 class MIT_Controller: public RobotController{
@@ -27,6 +29,8 @@ protected:
   // Gait Scheduler controls the nominal contact schedule for the feet
   GaitScheduler<float>* _gaitScheduler;
   MIT_UserParameters userParameters;
+  ros::NodeHandle nh_;
+  ros::Publisher pub_;
 
 };
 

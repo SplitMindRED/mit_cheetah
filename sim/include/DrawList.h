@@ -22,6 +22,7 @@
 #include "cppTypes.h"
 #include "obj_loader.h"
 #include "sim_utilities.h"
+#include "Configuration.h"
 
 #include <QMatrix4x4>
 
@@ -296,7 +297,7 @@ class DrawList {
   std::vector<u8> _canBeHidden;
   vectorAligned<Mat4<float>>
       _offsetXforms;  // these are NOT coordinate transformations!
-  std::string _baseFileName = "../resources/";
+  std::string _baseFileName = SOURCE_DIR"/resources/";
 
   std::vector<size_t> _objectMap;
 

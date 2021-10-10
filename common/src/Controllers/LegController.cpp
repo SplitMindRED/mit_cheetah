@@ -9,6 +9,8 @@
  */
 
 #include "Controllers/LegController.h"
+#include <ros/ros.h>
+#include <trajectory_msgs/JointTrajectory.h>
 
 /*!
  * Zero the leg command so the leg will not output torque

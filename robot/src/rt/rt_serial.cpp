@@ -2,6 +2,9 @@
  * @file rt_serial.cpp
  * @brief Serial port
  */
+// #ifndef linux
+// #include <stropts.h>
+// #endif
 
 #ifdef linux
 
@@ -11,6 +14,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#define winsize winsize_ioctl
+#define termio termio_ioctl
+#include <sys/ioctl.h>
+#undef winsize
+#undef termio
 
 #define termios asmtermios
 
@@ -21,9 +29,9 @@
 #include <termios.h>
 #include <math.h>
 #include <pthread.h>
-#include <stropts.h>
 #include <endian.h>
 #include <stdint.h>
+
 
 #include "rt/rt_serial.h"
 

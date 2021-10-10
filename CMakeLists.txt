@@ -1,6 +1,19 @@
 cmake_minimum_required(VERSION 3.5)
+project(cheetah_software)
+
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
+
+find_package(catkin REQUIRED 
+  roscpp
+  gazebo_ros
+  trajectory_msgs
+  COMPONENTS)
+
+catkin_package(
+  INCLUDE_DIRS
+  LIBRARIES ${PROJECT_NAME}
+)
 
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(SEND_ERROR "In-source builds are not allowed.")
@@ -25,7 +38,7 @@ if(MINI_CHEETAH_BUILD)
   set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
   -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-  -Wshadow -Wsign-promo -Werror")
+  -Wshadow -Wsign-promo")
   set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
   message("**** Mini-Cheetah build enabled ****")
 else(MINI_CHEETAH_BUILD)
@@ -37,7 +50,7 @@ else(MINI_CHEETAH_BUILD)
     set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-    -Wshadow -Wsign-promo -Werror")
+    -Wshadow -Wsign-promo")
   elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-O3 -march=native -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
@@ -51,6 +64,10 @@ else(MINI_CHEETAH_BUILD)
 endif(MINI_CHEETAH_BUILD)
 
 set(CMAKE_CXX_STANDARD 14)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  )
 
 #find_package(lcm)
 
@@ -66,3 +83,5 @@ endif()
 
 add_subdirectory(user)
 add_subdirectory(rc_test)
+
+

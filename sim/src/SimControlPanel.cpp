@@ -92,6 +92,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   try {
     _userParameters.defineAndInitializeFromYamlFile(getConfigDirectoryPath() + getDefaultUserParameterFileName());
   } catch (std::runtime_error& ex) {
+    std::cerr << "Get error" << ex.what() << std::endl;
     _loadedUserSettings = false;
   }
 
