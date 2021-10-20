@@ -4,6 +4,7 @@
  */
 
 #include "FSM_State.h"
+#include "iostream"
 
 /**
  * Constructor for the FSM State class.
@@ -175,6 +176,7 @@ void FSM_State<T>::runControls()
   }
   else if (CONTROLLER_OPTION == 4)
   {
+    std::cout << "yey ctrl 4" << std::endl;
     // RPC
     runRegularizedPredictiveController();
   }

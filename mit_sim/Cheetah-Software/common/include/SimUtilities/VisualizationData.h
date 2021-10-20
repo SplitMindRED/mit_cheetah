@@ -19,7 +19,8 @@
 /*!
  * Debugging sphere
  */
-struct SphereVisualization {
+struct SphereVisualization
+{
   Vec3<float> position;
   Vec4<float> color;
   double radius;
@@ -28,7 +29,8 @@ struct SphereVisualization {
 /*!
  * Debugging box
  */
-struct BlockVisualization {
+struct BlockVisualization
+{
   Vec3<float> dimension;
   Vec3<float> corner_position;
   Vec3<float> rpy;
@@ -38,7 +40,8 @@ struct BlockVisualization {
 /*!
  * Debugging arrow
  */
-struct ArrowVisualization {
+struct ArrowVisualization
+{
   Vec3<float> base_position;
   Vec3<float> direction;
   Vec4<float> color;
@@ -50,7 +53,8 @@ struct ArrowVisualization {
 /*!
  * Debugging robot (draws the same type of robot as currently simulating)
  */
-struct CheetahVisualization {
+struct CheetahVisualization
+{
   Vec12<float> q;
   Quat<float> quat;
   Vec3<float> p;
@@ -60,11 +64,13 @@ struct CheetahVisualization {
 /*!
  * Debugging "path"
  */
-struct PathVisualization {
+struct PathVisualization
+{
   size_t num_points = 0;
   Vec4<float> color;
   Vec3<float> position[VISUALIZATION_MAX_PATH_POINTS];
-  void clear() {
+  void clear()
+  {
     num_points = 0;
   }
 };
@@ -72,7 +78,8 @@ struct PathVisualization {
 /*!
  * Debugging Cone
  */
-struct ConeVisualization {
+struct ConeVisualization
+{
   Vec3<float> point_position;
   Vec3<float> direction;
   Vec4<float> color;
@@ -82,7 +89,8 @@ struct ConeVisualization {
 /*!
  * Mesh Visualization
  */
-struct MeshVisualization {
+struct MeshVisualization
+{
   Vec3<float> left_corner;
   Eigen::Matrix<float, VISUALIZATION_MAX_MESH_GRID, VISUALIZATION_MAX_MESH_GRID> height_map;
 
@@ -93,13 +101,12 @@ struct MeshVisualization {
   float height_min;
 };
 
-
 /*!
  * Collection of all debugging data
  */
-struct VisualizationData {
-  size_t num_paths = 0, num_arrows = 0, num_cones = 0, num_spheres = 0,
-         num_blocks = 0, num_meshes = 0;
+struct VisualizationData
+{
+  size_t num_paths = 0, num_arrows = 0, num_cones = 0, num_spheres = 0, num_blocks = 0, num_meshes = 0;
   SphereVisualization spheres[VISUALIZATION_MAX_ITEMS];
   BlockVisualization blocks[VISUALIZATION_MAX_ITEMS];
   ArrowVisualization arrows[VISUALIZATION_MAX_ITEMS];
@@ -110,7 +117,8 @@ struct VisualizationData {
   /*!
    * Remove all debug data
    */
-  void clear() {
+  void clear()
+  {
     num_paths = 0, num_arrows = 0, num_cones = 0, num_spheres = 0, num_blocks = 0;
     num_meshes = 0;
   }
@@ -119,8 +127,10 @@ struct VisualizationData {
    * Add a new sphere
    * @return A sphere, or nullptr if there isn't enough room
    */
-  SphereVisualization* addSphere() {
-    if(num_spheres < VISUALIZATION_MAX_ITEMS) {
+  SphereVisualization* addSphere()
+  {
+    if (num_spheres < VISUALIZATION_MAX_ITEMS)
+    {
       return &spheres[num_spheres++];
     }
     return nullptr;
@@ -130,8 +140,10 @@ struct VisualizationData {
    * Add a new box
    * @return A box, or nullptr if there isn't enough room
    */
-  BlockVisualization* addBlock() {
-    if(num_blocks < VISUALIZATION_MAX_ITEMS) {
+  BlockVisualization* addBlock()
+  {
+    if (num_blocks < VISUALIZATION_MAX_ITEMS)
+    {
       return &blocks[num_blocks++];
     }
     return nullptr;
@@ -141,8 +153,10 @@ struct VisualizationData {
    * Add a new arrow
    * @return An arrow, or nullptr if there isn't enough room
    */
-  ArrowVisualization* addArrow() {
-    if(num_arrows < VISUALIZATION_MAX_ITEMS) {
+  ArrowVisualization* addArrow()
+  {
+    if (num_arrows < VISUALIZATION_MAX_ITEMS)
+    {
       return &arrows[num_arrows++];
     }
     return nullptr;
@@ -152,8 +166,10 @@ struct VisualizationData {
    * Add a new cone
    * @return A cone, or nullptr if there isn't enough room
    */
-  ConeVisualization* addCone() {
-    if(num_cones < VISUALIZATION_MAX_ITEMS) {
+  ConeVisualization* addCone()
+  {
+    if (num_cones < VISUALIZATION_MAX_ITEMS)
+    {
       return &cones[num_cones++];
     }
     return nullptr;
@@ -163,8 +179,10 @@ struct VisualizationData {
    * Add a new path
    * @return A path, or nullptr if there isn't enough room
    */
-  PathVisualization* addPath() {
-    if(num_paths < VISUALIZATION_MAX_PATHS) {
+  PathVisualization* addPath()
+  {
+    if (num_paths < VISUALIZATION_MAX_PATHS)
+    {
       auto* path = &paths[num_paths++];
       path->clear();
       return path;
@@ -176,8 +194,10 @@ struct VisualizationData {
    * Add a new Mesh
    * @return A mesh, or nullptr if there isn't enough room
    */
-   MeshVisualization* addMesh() { 
-    if(num_paths < VISUALIZATION_MAX_MESHES) {
+  MeshVisualization* addMesh()
+  {
+    if (num_paths < VISUALIZATION_MAX_MESHES)
+    {
       return &meshes[num_meshes++];
     }
     return nullptr;

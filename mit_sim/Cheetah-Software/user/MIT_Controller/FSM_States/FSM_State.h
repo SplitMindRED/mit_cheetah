@@ -3,11 +3,11 @@
 
 #include <stdio.h>
 
-#include "ControlFSMData.h"
-#include "TransitionData.h"
-#include "Controllers/GaitScheduler.h"
-
 #include <Controllers/BalanceController/BalanceController.hpp>
+
+#include "ControlFSMData.h"
+#include "Controllers/GaitScheduler.h"
+#include "TransitionData.h"
 
 // Normal robot states
 #define K_PASSIVE 0
@@ -29,7 +29,8 @@
 /**
  * Enumerate all of the FSM states so we can keep track of them.
  */
-enum class FSM_StateName {
+enum class FSM_StateName
+{
   INVALID,
   PASSIVE,
   JOINT_PD,
@@ -47,33 +48,38 @@ enum class FSM_StateName {
  *
  */
 template <typename T>
-class FSM_State {
- public:
+class FSM_State
+{
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   // Generic constructor for all states
-  FSM_State(ControlFSMData<T>* _controlFSMData, FSM_StateName stateNameIn,
-            std::string stateStringIn);
+  FSM_State(ControlFSMData<T>* _controlFSMData, FSM_StateName stateNameIn, std::string stateStringIn);
 
   // Behavior to be carried out when entering a state
-  virtual void onEnter() = 0;// {}
+  virtual void onEnter() = 0;  // {}
 
   // Run the normal behavior for the state
-  virtual void run() = 0; //{}
+  virtual void run() = 0;  //{}
 
   // Manages state specific transitions
-  virtual FSM_StateName checkTransition() { return FSM_StateName::INVALID; }
+  virtual FSM_StateName checkTransition()
+  {
+    return FSM_StateName::INVALID;
+  }
 
   // Runs the transition behaviors and returns true when done transitioning
-  virtual TransitionData<T> transition() { return transitionData; }
+  virtual TransitionData<T> transition()
+  {
+    return transitionData;
+  }
 
   // Behavior to be carried out when exiting a state
-  virtual void onExit() = 0; // {}
+  virtual void onExit() = 0;  // {}
 
   //
   void jointPDControl(int leg, Vec3<T> qDes, Vec3<T> qdDes);
-  void cartesianImpedanceControl(int leg, Vec3<T> pDes, Vec3<T> vDes,
-                                 Vec3<double> kp_cartesian,
+  void cartesianImpedanceControl(int leg, Vec3<T> pDes, Vec3<T> vDes, Vec3<double> kp_cartesian,
                                  Vec3<double> kd_cartesian);
   void footstepHeuristicPlacement(int leg);
 
@@ -125,7 +131,7 @@ class FSM_State {
   // ModelPredictiveController cMPC
   // RegularizedPredictiveController RPC
 
- private:
+private:
   // Create the cartesian P gain matrix
   Mat3<float> kpMat;
 

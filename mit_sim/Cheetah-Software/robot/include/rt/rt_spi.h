@@ -13,7 +13,8 @@
 
 // incredibly obscure bug in SPI_IOC_MESSAGE macro is fixed by this
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <linux/spi/spidev.h>
@@ -27,6 +28,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>  //Needed for SPI port
+
 #include <spi_command_t.hpp>
 #include <spi_data_t.hpp>
 #include <spi_torque_t.hpp>
@@ -37,11 +39,9 @@ extern "C" {
 #define K_KNEE_OFFSET_POS 4.35f
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)                                \
-  (byte & 0x80 ? '1' : '0'), (byte & 0x40 ? '1' : '0'),     \
-      (byte & 0x20 ? '1' : '0'), (byte & 0x10 ? '1' : '0'), \
-      (byte & 0x08 ? '1' : '0'), (byte & 0x04 ? '1' : '0'), \
-      (byte & 0x02 ? '1' : '0'), (byte & 0x01 ? '1' : '0')
+#define BYTE_TO_BINARY(byte)                                                                                           \
+  (byte & 0x80 ? '1' : '0'), (byte & 0x40 ? '1' : '0'), (byte & 0x20 ? '1' : '0'), (byte & 0x10 ? '1' : '0'),          \
+      (byte & 0x08 ? '1' : '0'), (byte & 0x04 ? '1' : '0'), (byte & 0x02 ? '1' : '0'), (byte & 0x01 ? '1' : '0')
 
 void init_spi();
 
@@ -54,7 +54,8 @@ spi_command_t* get_spi_command();
 /*!
  * SPI command message
  */
-typedef struct {
+typedef struct
+{
   float q_des_abad[2];
   float q_des_hip[2];
   float q_des_knee[2];
@@ -78,7 +79,8 @@ typedef struct {
 /*!
  * SPI data message
  */
-typedef struct {
+typedef struct
+{
   float q_abad[2];
   float q_hip[2];
   float q_knee[2];
@@ -90,7 +92,6 @@ typedef struct {
 
 } spine_data_t;
 
-#endif // END of #ifdef linux
+#endif  // END of #ifdef linux
 
 #endif
-

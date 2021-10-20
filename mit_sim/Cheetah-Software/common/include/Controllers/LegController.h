@@ -11,6 +11,9 @@
 #ifndef PROJECT_LEGCONTROLLER_H
 #define PROJECT_LEGCONTROLLER_H
 
+#include <ros/ros.h>
+#include <trajectory_msgs/JointTrajectory.h>
+
 #include "Dynamics/Quadruped.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"

@@ -13,14 +13,15 @@
 /*!
  * A foot swing trajectory for a single foot
  */
-template<typename T>
-class FootSwingTrajectory {
+template <typename T>
+class FootSwingTrajectory
+{
 public:
-
   /*!
    * Construct a new foot swing trajectory with everything set to zero
    */
-  FootSwingTrajectory() {
+  FootSwingTrajectory()
+  {
     _p0.setZero();
     _pf.setZero();
     _p.setZero();
@@ -33,7 +34,8 @@ public:
    * Set the starting location of the foot
    * @param p0 : the initial foot position
    */
-  void setInitialPosition(Vec3<T> p0) {
+  void setInitialPosition(Vec3<T> p0)
+  {
     _p0 = p0;
   }
 
@@ -41,7 +43,8 @@ public:
    * Set the desired final position of the foot
    * @param pf : the final foot posiiton
    */
-  void setFinalPosition(Vec3<T> pf) {
+  void setFinalPosition(Vec3<T> pf)
+  {
     _pf = pf;
   }
 
@@ -49,7 +52,8 @@ public:
    * Set the maximum height of the swing
    * @param h : the maximum height of the swing, achieved halfway through the swing
    */
-  void setHeight(T h) {
+  void setHeight(T h)
+  {
     _height = h;
   }
 
@@ -59,7 +63,8 @@ public:
    * Get the foot position at the current point along the swing
    * @return : the foot position
    */
-  Vec3<T> getPosition() {
+  Vec3<T> getPosition()
+  {
     return _p;
   }
 
@@ -67,7 +72,8 @@ public:
    * Get the foot velocity at the current point along the swing
    * @return : the foot velocity
    */
-  Vec3<T> getVelocity() {
+  Vec3<T> getVelocity()
+  {
     return _v;
   }
 
@@ -75,7 +81,8 @@ public:
    * Get the foot acceleration at the current point along the swing
    * @return : the foot acceleration
    */
-  Vec3<T> getAcceleration() {
+  Vec3<T> getAcceleration()
+  {
     return _a;
   }
 
@@ -84,5 +91,4 @@ private:
   T _height;
 };
 
-
-#endif //CHEETAH_SOFTWARE_FOOTSWINGTRAJECTORY_H
+#endif  // CHEETAH_SOFTWARE_FOOTSWINGTRAJECTORY_H

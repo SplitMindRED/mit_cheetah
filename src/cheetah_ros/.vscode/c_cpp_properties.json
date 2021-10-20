@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/splitmind/itmo_ws/mit_sim/Cheetah-Software/**",
+                "/usr/include/**",
+                "${workspaceFolder}/robot/include",
+                "/usr/local/include/lcm",
+                "/opt/ros/noetic/include/**"
+            ],
+            "name": "ROS"
+        }
+    ],
+    "version": 4
+}

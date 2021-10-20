@@ -8,13 +8,14 @@
 
 #include <iostream>
 
-#include "cppTypes.h"
 #include "../../user/MIT_Controller/MIT_UserParameters.h"
+#include "cppTypes.h"
 
 /**
  * Enumerated gait types. Preplanned gaits are defined.
  */
-enum class GaitType {
+enum class GaitType
+{
   STAND,
   STAND_CYCLE,
   STATIC_WALK,
@@ -36,9 +37,13 @@ enum class GaitType {
  * Timing data for a gait
  */
 template <typename T>
-struct GaitData {
+struct GaitData
+{
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  GaitData() { zero(); }
+  GaitData()
+  {
+    zero();
+  }
 
   // Zero out all of the data
   void zero();
@@ -87,8 +92,9 @@ struct GaitData {
  * Utility to process GaitData and schedule foot steps and swings.
  */
 template <typename T>
-class GaitScheduler {
- public:
+class GaitScheduler
+{
+public:
   // Constructors for the GaitScheduler
   GaitScheduler(MIT_UserParameters* _userParameters, float _dt);
   ~GaitScheduler(){};
@@ -114,8 +120,8 @@ class GaitScheduler {
   T period_time_natural = 0.5;
   T switching_phase_natural = 0.5;
   T swing_time_natural = 0.25;
-  
- private:
+
+private:
   // The quadruped model
   // Quadruped<T>& _quadruped;
   MIT_UserParameters* userParameters;

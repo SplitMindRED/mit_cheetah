@@ -1,18 +1,21 @@
 {
-  "configurations": [
-    {
-      "browse": {
-        "databaseFilename": "",
-        "limitSymbolsToIncludedHeaders": true
-      },
-      "includePath": [
-        "/home/splitmind/itmo_ws/mit_sim/Cheetah-Software/**",
-        "/usr/include/**",
-        "${workspaceFolder}/robot/include",
-        "/usr/local/include/lcm"
-      ],
-      "name": "ROS"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/splitmind/itmo_ws/mit_sim/Cheetah-Software/**",
+                "/usr/include/**",
+                "${workspaceFolder}/robot/include",
+                "${workspaceFolder}/common/include",
+                "${workspaceFolder}",
+                "/usr/local/include/lcm"
+            ],
+            "name": "ROS",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
 }

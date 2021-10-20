@@ -1,6 +1,6 @@
 #include <ros/ros.h>
-#include <SimulationBridge.h>
-#include "user/MIT_Controller/MIT_Controller.hpp"
+//#include <SimulationBridge.h>
+//#include "user/MIT_Controller/MIT_Controller.hpp"
 
 int main(int argc, char** argv)
 {
@@ -10,16 +10,16 @@ int main(int argc, char** argv)
 
   ROS_INFO("Initialization...");
 
-  RobotType robotType = RobotType::MINI_CHEETAH;
+//  RobotType robotType = RobotType::MINI_CHEETAH;
 //  MIT_Controller MITController;
 
-  SimulationBridge SimBridge(robotType, new MIT_Controller());
+//  SimulationBridge SimBridge(robotType, new MIT_Controller());
 
   ROS_INFO("Initialization done!");
 
   while (ros::ok())
   {
-    SimBridge.runRobotControl();
+//    SimBridge.runRobotControl();
 
 
     ros::spinOnce();

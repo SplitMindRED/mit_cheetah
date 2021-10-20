@@ -7,30 +7,38 @@
 #ifndef ROBOT_CONTROLLER_H
 #define ROBOT_CONTROLLER_H
 
-#include "Controllers/LegController.h"
-#include "Dynamics/FloatingBaseModel.h"
-#include "Controllers/StateEstimatorContainer.h"
 #include "Controllers/DesiredStateCommand.h"
-#include "SimUtilities/VisualizationData.h"
+#include "Controllers/LegController.h"
+#include "Controllers/StateEstimatorContainer.h"
+#include "Dynamics/FloatingBaseModel.h"
 #include "SimUtilities/GamepadCommand.h"
+#include "SimUtilities/VisualizationData.h"
 
 /*!
  * Parent class of user robot controllers
  */
-class RobotController{
+class RobotController
+{
   friend class RobotRunner;
+
 public:
-  RobotController(){}
-  virtual ~RobotController(){}
+  RobotController()
+  {
+  }
+  virtual ~RobotController()
+  {
+  }
 
   virtual void initializeController() = 0;
-/**
- * Called one time every control loop 
- */
+  /**
+   * Called one time every control loop
+   */
   virtual void runController() = 0;
   virtual void updateVisualization() = 0;
   virtual ControlParameters* getUserControlParameters() = 0;
-  virtual void Estop() {}
+  virtual void Estop()
+  {
+  }
 
 protected:
   Quadruped<float>* _quadruped = nullptr;

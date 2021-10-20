@@ -71,6 +71,7 @@
         "string_view": "cpp",
         "variant": "cpp",
         "bit": "cpp",
-        "matrixfunctions": "cpp"
+        "matrixfunctions": "cpp",
+        "orderingmethods": "cpp"
     }
 }
