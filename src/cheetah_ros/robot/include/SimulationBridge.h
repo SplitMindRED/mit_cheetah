@@ -7,6 +7,8 @@
 #ifndef PROJECT_SIMULATIONDRIVER_H
 #define PROJECT_SIMULATIONDRIVER_H
 
+#include <ros/ros.h>
+
 #include <thread>
 
 #include "ControlParameters/RobotParameters.h"
@@ -16,25 +18,40 @@
 #include "Utilities/PeriodicTask.h"
 #include "Utilities/SharedMemory.h"
 
-class SimulationBridge {
- public:
-  explicit SimulationBridge(RobotType robot, RobotController* robot_ctrl) : 
-    _robot(robot) {
-     _fakeTaskManager = new PeriodicTaskManager;
+class SimulationBridge
+{
+public:
+  explicit SimulationBridge(RobotType robot, RobotController* robot_ctrl) : _robot(robot)
+  {
+    _fakeTaskManager = new PeriodicTaskManager;
     _robotRunner = new RobotRunner(robot_ctrl, _fakeTaskManager, 0, "robot-task");
     _userParams = robot_ctrl->getUserControlParameters();
 
- }
+    sub = _nh.subscribe("/mini_cheetah_raisim_node/current_position", 1, &SimulationBridge::stateCallback, this);
+  }
   void run();
   void handleControlParameters();
   void runRobotControl();
-  ~SimulationBridge() {
+  ~SimulationBridge()
+  {
     delete _fakeTaskManager;
     delete _robotRunner;
   }
   void run_sbus();
 
- private:
+  void stateCallback(trajectory_msgs::JointTrajectory msg);
+
+  ros::NodeHandle _nh;
+
+  trajectory_msgs::JointTrajectory raiSimFb;
+
+  SpiData* spiData_ros;
+
+  bool init = 0;
+
+  ros::Subscriber sub;
+
+private:
   PeriodicTaskManager taskManager;
   bool _firstControllerRun = true;
   PeriodicTaskManager* _fakeTaskManager = nullptr;

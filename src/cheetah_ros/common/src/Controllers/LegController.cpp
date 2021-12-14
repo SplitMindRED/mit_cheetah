@@ -95,39 +95,50 @@ void LegController<T>::edampCommand(RobotType robot, T gain)
 template <typename T>
 void LegController<T>::updateData(const SpiData* spiData)
 {
-  if (new_data == 1)
+  for (int leg = 0; leg < 4; leg++)
   {
-    for (int leg = 0; leg < 4; leg++)
+    if (new_data == 0)
     {
       // q:
       datas[leg].q(0) = spiData->q_abad[leg];
       datas[leg].q(1) = spiData->q_hip[leg];
       datas[leg].q(2) = spiData->q_knee[leg];
 
+      // std::cout << "leg: " << leg << " q0: " << datas[leg].q(0) << " q1: " << datas[leg].q(1)
+      //           << " q2: " << datas[leg].q(2) << std::endl;
+
       // qd
       datas[leg].qd(0) = spiData->qd_abad[leg];
       datas[leg].qd(1) = spiData->qd_hip[leg];
       datas[leg].qd(2) = spiData->qd_knee[leg];
+    }
+    else if (new_data == 1)
+    {
+      // q:
+      datas[leg].q(0) = raiSimFb.points[0].positions.at(leg);
+      datas[leg].q(1) = raiSimFb.points[0].positions.at(leg + 1);
+      datas[leg].q(2) = raiSimFb.points[0].positions.at(leg + 2);
 
-      // // q:
-      // datas[leg].q(0) = raiSimFb.points[0].positions.at(leg);
-      // datas[leg].q(1) = raiSimFb.points[0].positions.at(leg + 1);
-      // datas[leg].q(2) = raiSimFb.points[0].positions.at(leg + 2);
+      // std::cout << "leg: " << leg << " q0: " << datas[leg].q(0) << " q1: " << datas[leg].q(1)
+      //           << " q2: " << datas[leg].q(2) << std::endl;
 
-      // // qd
-      // datas[leg].qd(0) = raiSimFb.points[0].velocities.at(leg);
-      // datas[leg].qd(1) = raiSimFb.points[0].velocities.at(leg + 1);
-      // datas[leg].qd(2) = raiSimFb.points[0].velocities.at(leg + 2);
+      ROS_INFO_STREAM_ONCE("leg: " << leg << " q0: " << datas[leg].q(0) << " q1: " << datas[leg].q(1)
+                                   << " q2: " << datas[leg].q(2));
 
-      // J and p
-      computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J), &(datas[leg].p), leg);
-
-      // v
-      datas[leg].v = datas[leg].J * datas[leg].qd;
+      // qd
+      datas[leg].qd(0) = raiSimFb.points[0].velocities.at(leg);
+      datas[leg].qd(1) = raiSimFb.points[0].velocities.at(leg + 1);
+      datas[leg].qd(2) = raiSimFb.points[0].velocities.at(leg + 2);
     }
 
-    new_data = 0;
+    // J and p
+    computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J), &(datas[leg].p), leg);
+
+    // v
+    datas[leg].v = datas[leg].J * datas[leg].qd;
   }
+
+  // new_data = 0;
 
   ros::spinOnce();
 }
@@ -136,7 +147,7 @@ template <typename T>
 void LegController<T>::stateCallback(trajectory_msgs::JointTrajectory msg)
 {
   // std::cout << msg.points[0] << std::endl;
-  new_data = 1;
+  // new_data = 1;
   raiSimFb = msg;
 }
 

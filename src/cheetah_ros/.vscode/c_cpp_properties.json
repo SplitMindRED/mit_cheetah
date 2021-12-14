@@ -6,9 +6,9 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
-                "/home/splitmind/itmo_ws/mit_sim/Cheetah-Software/**",
                 "/usr/include/**",
                 "${workspaceFolder}/robot/include",
+                "${workspaceFolder}/**",
                 "/usr/local/include/lcm",
                 "/opt/ros/noetic/include/**"
             ],

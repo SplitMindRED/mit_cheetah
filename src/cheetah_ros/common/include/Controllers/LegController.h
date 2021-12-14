@@ -76,7 +76,7 @@ public:
   LegController(Quadruped<T>& quad) : _quadruped(quad)
   {
     // _nh = n;
-    sub = _nh.subscribe("/mini_cheetah_raisim_node/current_position", 1, &LegController::stateCallback, this);
+    // sub = _nh.subscribe("/mini_cheetah_raisim_node/current_position", 1, &LegController::stateCallback, this);
 
     // raiSimFb.points.resize
 

@@ -10,8 +10,9 @@
  * The SafetyChecker handles the checks requested by the ControlFSM.
  */
 template <typename T>
-class SafetyChecker {
- public:
+class SafetyChecker
+{
+public:
   SafetyChecker(ControlFSMData<T>* dataIn) : data(dataIn){};
 
   // Pre checks to make sure controls are safe to run
@@ -24,7 +25,7 @@ class SafetyChecker {
   // Stores the data from the ControlFSM
   ControlFSMData<T>* data;
 
- private:
+private:
 };
 
 #endif  // SAFETY_CHECKER_H

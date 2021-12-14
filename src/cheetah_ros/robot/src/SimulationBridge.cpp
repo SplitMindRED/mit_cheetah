@@ -264,6 +264,30 @@ void SimulationBridge::runRobotControl()
   _robotRunner->run();
 }
 
+void SimulationBridge::stateCallback(trajectory_msgs::JointTrajectory msg)
+{
+  if (init == 0)
+  {
+    init = 1;
+    spiData_ros = new SpiData;
+    _robotRunner->spiData = spiData_ros;
+  }
+  raiSimFb = msg;
+
+  for (int leg = 0; leg < 4; leg++)
+  {
+    // q:
+    spiData_ros->q_abad[leg] = raiSimFb.points[0].positions.at(leg);
+    spiData_ros->q_hip[leg] = raiSimFb.points[0].positions.at(leg + 1);
+    spiData_ros->q_knee[leg] = raiSimFb.points[0].positions.at(leg + 2);
+
+    // qd
+    spiData_ros->qd_abad[leg] = raiSimFb.points[0].velocities.at(leg);
+    spiData_ros->qd_hip[leg] = raiSimFb.points[0].velocities.at(leg + 1);
+    spiData_ros->qd_knee[leg] = raiSimFb.points[0].velocities.at(leg + 2);
+  }
+}
+
 /*!
  * Run the RC receive thread
  */

@@ -3,6 +3,7 @@
 
 #include <ControlParameters/RobotParameters.h>
 #include <MIT_UserParameters.h>
+
 #include "Controllers/DesiredStateCommand.h"
 #include "Controllers/GaitScheduler.h"
 #include "Controllers/LegController.h"
@@ -13,7 +14,8 @@
  *
  */
 template <typename T>
-struct ControlFSMData {
+struct ControlFSMData
+{
   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Quadruped<T>* _quadruped;
   StateEstimatorContainer<T>* _stateEstimator;

@@ -39,19 +39,7 @@ int main_helper(int argc, char** argv, RobotController* ctrl)
     return EXIT_FAILURE;
   }
 
-  if (argv[1][0] == '3')
-  {
-    gMasterConfig._robot = RobotType::CHEETAH_3;
-  }
-  else if (argv[1][0] == 'm')
-  {
-    gMasterConfig._robot = RobotType::MINI_CHEETAH;
-  }
-  else
-  {
-    printUsage();
-    return EXIT_FAILURE;
-  }
+  gMasterConfig._robot = RobotType::MINI_CHEETAH;
 
   if (argv[2][0] == 's')
   {
