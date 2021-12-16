@@ -1,7 +1,0 @@
-{
-    "python.autoComplete.extraPaths": [
-        "/home/splitmind/rtc_ws/devel/lib/python3/dist-packages",
-        "/opt/ros/noetic/lib/python3/dist-packages"
-    ],
-    "cmake.configureOnOpen": true
-}
