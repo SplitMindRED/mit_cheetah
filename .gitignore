@@ -43,25 +43,4 @@ qtcreator-*
 /planning/docs
 /planning/src
 
-mit_sim/Cheetah-Software/devel/
-mit_sim/Cheetah-Software/logs/
-mit_sim/Cheetah-Software/build/
-mit_sim/Cheetah-Software/bin/
-mit_sim/Cheetah-Software/lib/
-mit_sim/Cheetah-Software/msg_gen/
-mit_sim/Cheetah-Software/srv_gen/
-mit_sim/Cheetah-Software/msg/*Action.msg
-mit_sim/Cheetah-Software/msg/*ActionFeedback.msg
-mit_sim/Cheetah-Software/msg/*ActionGoal.msg
-mit_sim/Cheetah-Software/msg/*ActionResult.msg
-mit_sim/Cheetah-Software/msg/*Feedback.msg
-mit_sim/Cheetah-Software/msg/*Goal.msg
-mit_sim/Cheetah-Software/msg/*Result.msg
-mit_sim/Cheetah-Software/msg/_*.py
-mit_sim/Cheetah-Software/build_isolated/
-mit_sim/Cheetah-Software/devel_isolated/
-mit_sim/Cheetah-Software/documentation/doxygen/html
-mit_sim/eigen
-mit_sim/lcm-1.4.0
-
 .catkin_tools/
