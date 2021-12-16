@@ -33,6 +33,8 @@ void printUsage()
  */
 int main_helper(int argc, char** argv, RobotController* ctrl)
 {
+  ros::init(argc, argv, "mit_mpc_node");
+
   if (argc != 3 && argc != 4)
   {
     printUsage();
@@ -80,14 +82,10 @@ int main_helper(int argc, char** argv, RobotController* ctrl)
     }
     if (gMasterConfig._robot == RobotType::MINI_CHEETAH)
     {
+      //using sim
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
-    }
-    else if (gMasterConfig._robot == RobotType::CHEETAH_3)
-    {
-      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
-      simulationBridge.run();
     }
     else
     {
@@ -97,24 +95,24 @@ int main_helper(int argc, char** argv, RobotController* ctrl)
   }
   else
   {
-#ifdef linux
     if (gMasterConfig._robot == RobotType::MINI_CHEETAH)
     {
+//      uint8_t unitree_control_level = UNITREE_LEGGED_SDK::LOWLEVEL;
+
+//      unitree_control_level = UNITREE_LEGGED_SDK::LOWLEVEL;
+
+//      UNITREE_LEGGED_SDK::LCM roslcm(unitree_control_level);
+
+      //using hw
       MiniCheetahHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
       hw.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
-    }
-    else if (gMasterConfig._robot == RobotType::CHEETAH_3)
-    {
-      Cheetah3HardwareBridge hw(ctrl);
-      hw.run();
     }
     else
     {
       printf("[ERROR] unknown robot\n");
       assert(false);
     }
-#endif
   }
 
   return 0;

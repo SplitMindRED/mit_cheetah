@@ -14,12 +14,14 @@ using Eigen::Array4i;
 
 
 template<typename T>
-struct CMPC_Result {
+struct CMPC_Result
+{
   LegControllerCommand<T> commands[4];
   Vec4<T> contactPhase;
 };
 
-struct CMPC_Jump {
+struct CMPC_Jump
+{
   static constexpr int START_SEG = 6;
   static constexpr int END_SEG = 0;
   static constexpr int END_COUNT = 2;
@@ -37,19 +39,21 @@ struct CMPC_Jump {
 
   void trigger_pressed(int seg, bool trigger) {
     (void)seg;
-    if(!pressed && trigger) {
-      if(!jump_pending && !jump_in_progress) {
+
+    if (!pressed && trigger) {
+      if (!jump_pending && !jump_in_progress) {
         jump_pending = true;
         //printf("jump pending @ %d\n", seg);
       }
     }
+
     pressed = trigger;
   }
 
   bool should_jump(int seg) {
     debug(seg);
 
-    if(jump_pending && seg == START_SEG) {
+    if (jump_pending && seg == START_SEG) {
       jump_pending = false;
       jump_in_progress = true;
       //printf("jump begin @ %d\n", seg);
@@ -58,10 +62,11 @@ struct CMPC_Jump {
       return true;
     }
 
-    if(jump_in_progress) {
-      if(seg == END_SEG && seg != last_seg_seen) {
+    if (jump_in_progress) {
+      if (seg == END_SEG && seg != last_seg_seen) {
         seen_end_count++;
-        if(seen_end_count == END_COUNT) {
+
+        if (seen_end_count == END_COUNT) {
           seen_end_count = 0;
           jump_in_progress = false;
           //printf("jump end @ %d\n", seg);
@@ -69,6 +74,7 @@ struct CMPC_Jump {
           return false;
         }
       }
+
       last_seg_seen = seg;
       return true;
     }
@@ -79,8 +85,9 @@ struct CMPC_Jump {
 };
 
 
-class ConvexMPCLocomotion {
-public:
+class ConvexMPCLocomotion
+{
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   ConvexMPCLocomotion(float _dt, int _iterations_between_mpc, MIT_UserParameters* parameters);
@@ -105,8 +112,8 @@ public:
 
   Vec4<float> contact_state;
 
-private:
-  void _SetupCommand(ControlFSMData<float> & data);
+ private:
+  void _SetupCommand(ControlFSMData<float>& data);
 
   float _yaw_turn_rate;
   float _yaw_des;
@@ -126,8 +133,8 @@ private:
 
   void recompute_timing(int iterations_per_mpc);
   void updateMPCIfNeeded(int* mpcTable, ControlFSMData<float>& data, bool omniMode);
-  void solveDenseMPC(int *mpcTable, ControlFSMData<float> &data);
-  void solveSparseMPC(int *mpcTable, ControlFSMData<float> &data);
+  void solveDenseMPC(int* mpcTable, ControlFSMData<float>& data);
+  void solveSparseMPC(int* mpcTable, ControlFSMData<float>& data);
   void initSparseMPC();
   int iterationsBetweenMPC;
   int horizonLength;
@@ -154,7 +161,7 @@ private:
   float x_comp_integral = 0;
   Vec3<float> pFoot[4];
   CMPC_Result<float> result;
-  float trajAll[12*36];
+  float trajAll[12 * 36];
 
   MIT_UserParameters* _parameters = nullptr;
   CMPC_Jump jump_state;

@@ -12,7 +12,8 @@
 /*!
  * Command to spine board
  */
-struct SpiCommand {
+struct SpiCommand
+{
   float q_des_abad[4];
   float q_des_hip[4];
   float q_des_knee[4];
@@ -39,7 +40,8 @@ struct SpiCommand {
 /*!
  * Data from spine board
  */
-struct SpiData {
+struct SpiData
+{
   float q_abad[4];
   float q_hip[4];
   float q_knee[4];
@@ -53,7 +55,8 @@ struct SpiData {
 /*!
  * Spine board control logic
  */
-class SpineBoard {
+class SpineBoard
+{
  public:
   SpineBoard() {}
   void init(float side_sign, s32 board);

@@ -87,9 +87,7 @@ public:
   void zeroCommand();
   void edampCommand(RobotType robot, T gain);
   void updateData(const SpiData* spiData);
-  void updateData(const TiBoardData* tiBoardData);
   void updateCommand(SpiCommand* spiCommand);
-  void updateCommand(TiBoardCommand* tiBoardCommand);
   void setEnabled(bool enabled)
   {
     _legsEnabled = enabled;

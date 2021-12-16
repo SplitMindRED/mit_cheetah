@@ -25,14 +25,17 @@
 /**
  * Enumerate all of the operating modes
  */
-enum class FSM_OperatingMode { 
-  NORMAL, TRANSITIONING, ESTOP, EDAMP };
+enum class FSM_OperatingMode
+{
+  NORMAL, TRANSITIONING, ESTOP, EDAMP
+};
 
 /**
  *
  */
 template <typename T>
-struct FSM_StatesList {
+struct FSM_StatesList
+{
   FSM_State<T>* invalid;
   FSM_State_Passive<T>* passive;
   FSM_State_JointPD<T>* jointPD;
@@ -51,7 +54,8 @@ struct FSM_StatesList {
  *
  */
 template <typename T>
-struct FSM_ControllerList {
+struct FSM_ControllerList
+{
 };
 
 
@@ -59,7 +63,8 @@ struct FSM_ControllerList {
  * Control FSM handles the FSM states from a higher level
  */
 template <typename T>
-class ControlFSM {
+class ControlFSM
+{
  public:
   ControlFSM(Quadruped<T>* _quadruped,
              StateEstimatorContainer<T>* _stateEstimator,

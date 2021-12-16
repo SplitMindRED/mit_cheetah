@@ -37,10 +37,6 @@ void RobotRunner::init()
   {
     _quadruped = buildMiniCheetah<float>();
   }
-  else
-  {
-    _quadruped = buildCheetah3<float>();
-  }
 
   // Initialize the model and robot data
   _model = _quadruped.buildModel();
@@ -89,6 +85,7 @@ void RobotRunner::run()
 
   static int count_ini(0);
   ++count_ini;
+
   if (count_ini < 10)
   {
     _legController->setEnabled(false);
@@ -108,11 +105,15 @@ void RobotRunner::run()
     if ((rc_control.mode == 0) && controlParameters->use_rc)
     {
       if (count_ini % 1000 == 0)
+      {
         printf("ESTOP!\n");
+      }
+
       for (int leg = 0; leg < 4; leg++)
       {
         _legController->commands[leg].zero();
       }
+
       _robot_ctrl->Estop();
     }
     else
@@ -122,16 +123,12 @@ void RobotRunner::run()
       {
         Mat3<float> kpMat;
         Mat3<float> kdMat;
+
         // Update the jpos feedback gains
         if (robotType == RobotType::MINI_CHEETAH)
         {
           kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
           kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
-        }
-        else if (robotType == RobotType::CHEETAH_3)
-        {
-          kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-          kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
         }
         else
         {
@@ -165,6 +162,7 @@ void RobotRunner::run()
       cheetahMainVisualization->q[leg * 3 + joint] = _legController->datas[leg].q[joint];
     }
   }
+
   cheetahMainVisualization->p.setZero();
   cheetahMainVisualization->p = _stateEstimate.position;
   cheetahMainVisualization->quat = _stateEstimate.orientation;
@@ -179,18 +177,9 @@ void RobotRunner::run()
 void RobotRunner::setupStep()
 {
   // Update the leg data
-  if (robotType == RobotType::MINI_CHEETAH)
-  {
-    _legController->updateData(spiData);
-  }
-  else if (robotType == RobotType::CHEETAH_3)
-  {
-    _legController->updateData(tiBoardData);
-  }
-  else
-  {
-    assert(false);
-  }
+
+  _legController->updateData(spiData);
+
 
   // Setup the leg controller for a new iteration
   _legController->zeroCommand();
@@ -230,20 +219,31 @@ void RobotRunner::finalizeStep()
   {
     _legController->updateCommand(spiCommand);
   }
-  else if (robotType == RobotType::CHEETAH_3)
-  {
-    _legController->updateCommand(tiBoardCommand);
-  }
   else
   {
     assert(false);
   }
+
   _legController->setLcm(&leg_control_data_lcm, &leg_control_command_lcm);
   _stateEstimate.setLcm(state_estimator_lcm);
   _lcm.publish("leg_control_command", &leg_control_command_lcm);
   _lcm.publish("leg_control_data", &leg_control_data_lcm);
   _lcm.publish("state_estimator", &state_estimator_lcm);
   _iterations++;
+
+  unitree_legged_msgs::LowCmd msg;
+
+  msg.levelFlag = _LOWLEVEL;
+
+  for(uint8_t joint = 0; joint < 12; joint++)
+  {
+    msg.motorCmd[joint].mode = 0x0A;
+    msg.motorCmd[joint].q = _PosStopF;
+    msg.motorCmd[joint].dq = _VelStopF;
+    msg.motorCmd[joint].Kp = 0;
+    msg.motorCmd[joint].Kd = 0;
+    msg.motorCmd[joint].tau = leg_control_command_lcm.tau_ff[joint];
+  }
 }
 
 /*!
@@ -257,6 +257,7 @@ void RobotRunner::initializeStateEstimator(bool cheaterMode)
   Vec4<float> contactDefault;
   contactDefault << 0.5, 0.5, 0.5, 0.5;
   _stateEstimator->setContactPhase(contactDefault);
+
   if (cheaterMode)
   {
     _stateEstimator->addEstimator<CheaterOrientationEstimator<float>>();

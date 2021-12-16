@@ -16,7 +16,8 @@ class PeriodicTaskManager;
 /*!
  * A single periodic task which will call run() at the given frequency
  */
-class PeriodicTask {
+class PeriodicTask
+{
  public:
   PeriodicTask(PeriodicTaskManager* taskManager, float period,
                std::string name);
@@ -28,27 +29,37 @@ class PeriodicTask {
   virtual void init() = 0;
   virtual void run() = 0;
   virtual void cleanup() = 0;
-  virtual ~PeriodicTask() { stop(); }
+  virtual ~PeriodicTask() {
+    stop();
+  }
 
   /*!
    * Get the desired period for the task
    */
-  float getPeriod() { return _period; }
+  float getPeriod() {
+    return _period;
+  }
 
   /*!
    * Get how long the most recent run took
    */
-  float getRuntime() { return _lastRuntime; }
+  float getRuntime() {
+    return _lastRuntime;
+  }
 
   /*!
    * Get the maximum time in between runs
    */
-  float getMaxPeriod() { return _maxPeriod; }
+  float getMaxPeriod() {
+    return _maxPeriod;
+  }
 
   /*!
    * Get the maximum time it took for a run
    */
-  float getMaxRuntime() { return _maxRuntime; }
+  float getMaxRuntime() {
+    return _maxRuntime;
+  }
 
  private:
   void loopFunction();
@@ -66,7 +77,8 @@ class PeriodicTask {
 /*!
  * A collection of periodic tasks which can be monitored together
  */
-class PeriodicTaskManager {
+class PeriodicTaskManager
+{
  public:
   PeriodicTaskManager() = default;
   ~PeriodicTaskManager();
@@ -82,16 +94,21 @@ class PeriodicTaskManager {
 /*!
  * A periodic task for calling a function
  */
-class PeriodicFunction : public PeriodicTask {
+class PeriodicFunction : public PeriodicTask
+{
  public:
   PeriodicFunction(PeriodicTaskManager* taskManager, float period,
                    std::string name, void (*function)())
-      : PeriodicTask(taskManager, period, name), _function(function) {}
+    : PeriodicTask(taskManager, period, name), _function(function) {}
   void cleanup() {}
   void init() {}
-  void run() { _function(); }
+  void run() {
+    _function();
+  }
 
-  ~PeriodicFunction() { stop(); }
+  ~PeriodicFunction() {
+    stop();
+  }
 
  private:
   void (*_function)() = nullptr;
@@ -100,13 +117,14 @@ class PeriodicFunction : public PeriodicTask {
 /*!
  * A periodic task for printing the status of all tasks in the task manager
  */
-class PrintTaskStatus : public PeriodicTask {
+class PrintTaskStatus : public PeriodicTask
+{
  public:
   PrintTaskStatus(PeriodicTaskManager* tm, float period)
-      : PeriodicTask(tm, period, "print-tasks"), _tm(tm) {}
-  void run() override { 
+    : PeriodicTask(tm, period, "print-tasks"), _tm(tm) {}
+  void run() override {
     // DH: Disable printing
-    //_tm->printStatus(); 
+    //_tm->printStatus();
   }
 
   void init() override {}
@@ -121,17 +139,20 @@ class PrintTaskStatus : public PeriodicTask {
  * A periodic task for calling a member function
  */
 template <typename T>
-class PeriodicMemberFunction : public PeriodicTask {
+class PeriodicMemberFunction : public PeriodicTask
+{
  public:
   PeriodicMemberFunction(PeriodicTaskManager* taskManager, float period,
                          std::string name, void (T::*function)(), T* obj)
-      : PeriodicTask(taskManager, period, name),
-        _function(function),
-        _obj(obj) {}
+    : PeriodicTask(taskManager, period, name),
+      _function(function),
+      _obj(obj) {}
 
   void cleanup() {}
   void init() {}
-  void run() { (_obj->*_function)(); }
+  void run() {
+    (_obj->*_function)();
+  }
 
  private:
   void (T::*_function)();

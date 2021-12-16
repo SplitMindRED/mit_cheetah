@@ -10,7 +10,8 @@ template<typename T> class LocomotionCtrlData;
  *
  */
 template <typename T>
-class FSM_State_Locomotion : public FSM_State<T> {
+class FSM_State_Locomotion : public FSM_State<T>
+{
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   FSM_State_Locomotion(ControlFSMData<T>* _controlFSMData);
@@ -34,8 +35,8 @@ class FSM_State_Locomotion : public FSM_State<T> {
   // Keep track of the control iterations
   int iter = 0;
   ConvexMPCLocomotion* cMPCOld;
-  WBC_Ctrl<T> * _wbc_ctrl;
-  LocomotionCtrlData<T> * _wbc_data;
+  WBC_Ctrl<T>* _wbc_ctrl;
+  LocomotionCtrlData<T>* _wbc_data;
 
   // Parses contact specific controls to the leg controller
   void LocomotionControlStep();

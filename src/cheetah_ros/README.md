@@ -71,3 +71,6 @@ s: simulation, r: robot
 - `libblas-dev liblapack-dev`
 
 To use Ipopt, use CMake Ipopt option. Ex) cmake -DIPOPT_OPTION=ON ..
+
+rosrun cheetah_software sim
+rosrun cheetah_software mit_ctrl m s

@@ -24,9 +24,12 @@
  *
  */
 template <typename T>
-struct DesiredStateData {
+struct DesiredStateData
+{
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  DesiredStateData() { zero(); }
+  DesiredStateData() {
+    zero();
+  }
 
   // Zero out all of the data
   void zero();
@@ -44,8 +47,9 @@ struct DesiredStateData {
  *
  */
 template <typename T>
-class DesiredStateCommand {
-public:
+class DesiredStateCommand
+{
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   // Initialize with the GamepadCommand struct
   DesiredStateCommand(GamepadCommand* command, rc_control_settings* rc_command,
@@ -102,7 +106,7 @@ public:
 
   bool trigger_pressed = false;
 
-private:
+ private:
   StateEstimate<T>* stateEstimate;
   RobotControlParameters* parameters;
 

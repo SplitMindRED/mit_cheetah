@@ -21,8 +21,11 @@
 #include "rt/rt_sbus.h"
 #include "rt/rt_spi.h"
 #include "rt/rt_vectornav.h"
+#include "iostream"
 
 #define USE_MICROSTRAIN
+
+using namespace std;
 
 /*!
  * If an error occurs during initialization, before motors are enabled, print
@@ -51,6 +54,7 @@ void HardwareBridge::initCommon()
   prefaultStack();
   printf("[HardwareBridge] Init scheduler\n");
   setupScheduler();
+
   if (!_interfaceLCM.good())
   {
     initError("_interfaceLCM failed to initialize\n", false);
@@ -70,7 +74,9 @@ void HardwareBridge::initCommon()
 void HardwareBridge::handleInterfaceLCM()
 {
   while (!_interfaceLcmQuit)
+  {
     _interfaceLCM.handle();
+  }
 }
 
 /*!
@@ -86,6 +92,7 @@ void HardwareBridge::prefaultStack()
   printf("[Init] Prefault stack...\n");
   volatile char stack[MAX_STACK_SIZE];
   memset(const_cast<char*>(stack), 0, MAX_STACK_SIZE);
+
   if (mlockall(MCL_CURRENT | MCL_FUTURE) == -1)
   {
     initError("mlockall failed.  This is likely because you didn't run robot as "
@@ -102,6 +109,7 @@ void HardwareBridge::setupScheduler()
   printf("[Init] Setup RT Scheduler...\n");
   struct sched_param params;
   params.sched_priority = TASK_PRIORITY;
+
   if (sched_setscheduler(0, SCHED_FIFO, &params) == -1)
   {
     initError("sched_setscheduler failed.\n", true);
@@ -126,6 +134,7 @@ void HardwareBridge::handleControlParameter(const lcm::ReceiveBuffer* rbuf, cons
 {
   (void)rbuf;
   (void)chan;
+
   if (msg->requestNumber <= _parameter_response_lcmt.requestNumber)
   {
     // nothing to do!
@@ -136,6 +145,7 @@ void HardwareBridge::handleControlParameter(const lcm::ReceiveBuffer* rbuf, cons
 
   // sanity check
   s64 nRequests = msg->requestNumber - _parameter_response_lcmt.requestNumber;
+
   if (nRequests != 1)
   {
     printf("[ERROR] Hardware bridge: we've missed %ld requests\n", nRequests - 1);
@@ -224,6 +234,7 @@ void HardwareBridge::handleControlParameter(const lcm::ReceiveBuffer* rbuf, cons
     }
     break;
   }
+
   _interfaceLCM.publish("interface_response", &_parameter_response_lcmt);
 }
 
@@ -238,6 +249,8 @@ MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl
  */
 void MiniCheetahHardwareBridge::run()
 {
+
+  //  cout << "skip hardware init " << endl;
   initCommon();
   initHardware();
 
@@ -291,6 +304,7 @@ void MiniCheetahHardwareBridge::run()
   else
   {
     printf("[Hardware Bridge] Loading parameters over LCM...\n");
+
     while (!_robotParams.isFullyInitialized())
     {
       printf("[Hardware Bridge] Waiting for robot parameters...\n");
@@ -333,18 +347,23 @@ void MiniCheetahHardwareBridge::run()
 
   // microstrain
   if (_microstrainInit)
+  {
     _microstrainThread = std::thread(&MiniCheetahHardwareBridge::runMicrostrain, this);
+  }
 
   // robot controller start
   _robotRunner->start();
 
+  cout << "skip vizualization init" << endl;
+
   // visualization start
-  PeriodicMemberFunction<MiniCheetahHardwareBridge> visualizationLCMTask(
-      &taskManager, .0167, "lcm-vis", &MiniCheetahHardwareBridge::publishVisualizationLCM, this);
-  visualizationLCMTask.start();
+  //  PeriodicMemberFunction<MiniCheetahHardwareBridge> visualizationLCMTask(
+  //    &taskManager, .0167, "lcm-vis", &MiniCheetahHardwareBridge::publishVisualizationLCM, this);
+  //  visualizationLCMTask.start();
 
   // rc controller
-  _port = init_sbus(false);  // Not Simulation
+  //  _port = init_sbus(false);  // Not Simulation
+  cout << "skip rc controller init" << endl;
   PeriodicMemberFunction<HardwareBridge> sbusTask(&taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
   sbusTask.start();
 
@@ -353,10 +372,11 @@ void MiniCheetahHardwareBridge::run()
                                                                       &MiniCheetahHardwareBridge::logMicrostrain, this);
   microstrainLogger.start();
 
-  for (;;)
+  while(ros::ok())
   {
     usleep(1000000);
     // printf("joy %f\n", _robotRunner->driverCommand->leftStickAnalog[0]);
+    ROS_INFO_STREAM("hw loop");
   }
 }
 
@@ -365,37 +385,56 @@ void MiniCheetahHardwareBridge::run()
  */
 void HardwareBridge::run_sbus()
 {
-  if (_port > 0)
-  {
-    int x = receive_sbus(_port);
-    if (x)
-    {
-      sbus_packet_complete();
-    }
-  }
+  //  if (_port > 0)
+  //  {
+  //    int x = receive_sbus(_port);
+
+  //    if (x)
+  //    {
+  //      sbus_packet_complete(); //they get all controll data from RC
+  //    }
+  //  }
+
+//  cout << "skip run sbus " << endl;
 }
 
 void MiniCheetahHardwareBridge::runMicrostrain()
 {
-  while (true)
+  while (ros::ok())
   {
-    _microstrainImu.run();
+//    cout << "get IMU data" << endl;
+
+    _vectorNavData.accelerometer[0] = _body.acc[0];
+    _vectorNavData.accelerometer[1] = _body.acc[1];
+    _vectorNavData.accelerometer[2] = _body.acc[2];
+    _vectorNavData.quat[3] = _body.quat[0]; //w
+    _vectorNavData.quat[0] = _body.quat[1]; //x
+    _vectorNavData.quat[1] = _body.quat[2]; //y
+    _vectorNavData.quat[2] = _body.quat[3]; //z
+    _vectorNavData.gyro[0] = _body.gyro[0];
+    _vectorNavData.gyro[1] = _body.gyro[1];
+    _vectorNavData.gyro[2] = _body.gyro[2];
+
+//    cout << "accX: " << _vectorNavData.accelerometer[0] << endl;
+
+    //    _microstrainImu.run();
 
 #ifdef USE_MICROSTRAIN
-    _vectorNavData.accelerometer = _microstrainImu.acc;
-    _vectorNavData.quat[0] = _microstrainImu.quat[1];
-    _vectorNavData.quat[1] = _microstrainImu.quat[2];
-    _vectorNavData.quat[2] = _microstrainImu.quat[3];
-    _vectorNavData.quat[3] = _microstrainImu.quat[0];
-    _vectorNavData.gyro = _microstrainImu.gyro;
+    //    _vectorNavData.accelerometer = _microstrainImu.acc;
+    //    _vectorNavData.quat[0] = _microstrainImu.quat[1];
+    //    _vectorNavData.quat[1] = _microstrainImu.quat[2];
+    //    _vectorNavData.quat[2] = _microstrainImu.quat[3];
+    //    _vectorNavData.quat[3] = _microstrainImu.quat[0];
+    //    _vectorNavData.gyro = _microstrainImu.gyro;
 #endif
   }
 }
 
 void MiniCheetahHardwareBridge::logMicrostrain()
 {
-  _microstrainImu.updateLCM(&_microstrainData);
-  _microstrainLcm.publish("microstrain", &_microstrainData);
+  //  _microstrainImu.updateLCM(&_microstrainData);
+  //  _microstrainLcm.publish("microstrain", &_microstrainData);
+//  cout << "skip get data from imu" << endl;
 }
 
 /*!
@@ -404,33 +443,22 @@ void MiniCheetahHardwareBridge::logMicrostrain()
 void MiniCheetahHardwareBridge::initHardware()
 {
   _vectorNavData.quat << 1, 0, 0, 0;
+
 #ifndef USE_MICROSTRAIN
   printf("[MiniCheetahHardware] Init vectornav\n");
+
   if (!init_vectornav(&_vectorNavData))
   {
     printf("Vectornav failed to initialize\n");
     // initError("failed to initialize vectornav!\n", false);
   }
+
 #endif
 
-  init_spi();
-  _microstrainInit = _microstrainImu.tryInit(0, 921600);
-}
-
-void Cheetah3HardwareBridge::initHardware()
-{
-  _vectorNavData.quat << 1, 0, 0, 0;
-  printf("[Cheetah 3 Hardware] Init vectornav\n");
-  if (!init_vectornav(&_vectorNavData))
-  {
-    printf("Vectornav failed to initialize\n");
-    printf_color(PrintColor::Red, "****************\n"
-                                  "**  WARNING!  **\n"
-                                  "****************\n"
-                                  "  IMU DISABLED  \n"
-                                  "****************\n\n");
-    // initError("failed to initialize vectornav!\n", false);
-  }
+  //  init_spi();
+  //  _microstrainInit = _microstrainImu.tryInit(0, 921600);
+  cout << "fake imu init" << endl;
+  _microstrainInit = true;
 }
 
 /*!
@@ -438,95 +466,85 @@ void Cheetah3HardwareBridge::initHardware()
  */
 void MiniCheetahHardwareBridge::runSpi()
 {
+//  cout << "ROS topic sub/pub instead of spi" << endl;
+
   spi_command_t* cmd = get_spi_command();
   spi_data_t* data = get_spi_data();
 
-  memcpy(cmd, &_spiCommand, sizeof(spi_command_t));
-  spi_driver_run();
+  // поместить данные из внешней структуры spi command в структуру spi для отправки
+  //  memcpy(cmd, &_spiCommand, sizeof(spi_command_t));
+  // провели обмен данными: отправили команды и приняли состояние
+  //  spi_driver_run();
+  ros::spinOnce();
+
+  for (uint8_t leg = 0; leg < 4; leg++)
+  {
+//    cout << "leg: " << (int)leg << " q0: " << _joint[leg * 3 + 0].q << " q1: " << _joint[leg * 3 + 1].q << " q2: " << _joint[leg * 3 + 2].q << endl;
+
+    data->q_abad[leg] = _joint[leg * 3 + 0].q;
+    data->q_hip[leg] = -_joint[leg * 3 + 1].q;
+    data->q_knee[leg] = -_joint[leg * 3 + 2].q;
+
+    data->qd_abad[leg] = _joint[leg * 3 + 0].dq;
+    data->qd_hip[leg] = -_joint[leg * 3 + 1].dq;
+    data->qd_knee[leg] = -_joint[leg * 3 + 2].dq;
+
+//    cout << "leg: " << (int)leg << " q0: " << data->q_abad[leg] << " q1: " << data->q_hip[leg] << " q2: " << data->q_knee[leg] << endl;
+  }
+
+  // скопировали принятые данные из spi во внешнюю структуру spi data
   memcpy(&_spiData, data, sizeof(spi_data_t));
 
-  _spiLcm.publish("spi_data", data);
-  _spiLcm.publish("spi_command", cmd);
-}
+  unitree_legged_msgs::LowCmd msg;
 
-void Cheetah3HardwareBridge::runEcat()
-{
-  rt_ethercat_set_command(_tiBoardCommand);
-  rt_ethercat_run();
-  rt_ethercat_get_data(_tiBoardData);
+  msg.levelFlag = _LOWLEVEL;
 
-  publishEcatLCM();
-}
-
-void Cheetah3HardwareBridge::publishEcatLCM()
-{
-  for (int leg = 0; leg < 4; leg++)
+  for (uint8_t joint = 0; joint < 12; joint++)
   {
-    ecatCmdLcm.x_des[leg] = _tiBoardCommand[leg].position_des[0];
-    ecatCmdLcm.y_des[leg] = _tiBoardCommand[leg].position_des[1];
-    ecatCmdLcm.z_des[leg] = _tiBoardCommand[leg].position_des[2];
-    ecatCmdLcm.dx_des[leg] = _tiBoardCommand[leg].velocity_des[0];
-    ecatCmdLcm.dy_des[leg] = _tiBoardCommand[leg].velocity_des[1];
-    ecatCmdLcm.dz_des[leg] = _tiBoardCommand[leg].velocity_des[2];
-    ecatCmdLcm.kpx[leg] = _tiBoardCommand[leg].kp[0];
-    ecatCmdLcm.kpy[leg] = _tiBoardCommand[leg].kp[1];
-    ecatCmdLcm.kpz[leg] = _tiBoardCommand[leg].kp[2];
-    ecatCmdLcm.kdx[leg] = _tiBoardCommand[leg].kd[0];
-    ecatCmdLcm.kdy[leg] = _tiBoardCommand[leg].kd[1];
-    ecatCmdLcm.kdz[leg] = _tiBoardCommand[leg].kd[2];
-    ecatCmdLcm.enable[leg] = _tiBoardCommand[leg].enable;
-    ecatCmdLcm.zero_joints[leg] = _tiBoardCommand[leg].zero;
-    ecatCmdLcm.fx_ff[leg] = _tiBoardCommand[leg].force_ff[0];
-    ecatCmdLcm.fy_ff[leg] = _tiBoardCommand[leg].force_ff[1];
-    ecatCmdLcm.fz_ff[leg] = _tiBoardCommand[leg].force_ff[2];
-    ecatCmdLcm.tau_abad_ff[leg] = _tiBoardCommand[leg].tau_ff[0];
-    ecatCmdLcm.tau_hip_ff[leg] = _tiBoardCommand[leg].tau_ff[1];
-    ecatCmdLcm.tau_knee_ff[leg] = _tiBoardCommand[leg].tau_ff[2];
-    ecatCmdLcm.q_des_abad[leg] = _tiBoardCommand[leg].q_des[0];
-    ecatCmdLcm.q_des_hip[leg] = _tiBoardCommand[leg].q_des[1];
-    ecatCmdLcm.q_des_knee[leg] = _tiBoardCommand[leg].q_des[2];
-    ecatCmdLcm.qd_des_abad[leg] = _tiBoardCommand[leg].qd_des[0];
-    ecatCmdLcm.qd_des_hip[leg] = _tiBoardCommand[leg].qd_des[1];
-    ecatCmdLcm.qd_des_knee[leg] = _tiBoardCommand[leg].qd_des[2];
-    ecatCmdLcm.kp_joint_abad[leg] = _tiBoardCommand[leg].kp_joint[0];
-    ecatCmdLcm.kp_joint_hip[leg] = _tiBoardCommand[leg].kp_joint[1];
-    ecatCmdLcm.kp_joint_knee[leg] = _tiBoardCommand[leg].kp_joint[2];
-    ecatCmdLcm.kd_joint_abad[leg] = _tiBoardCommand[leg].kd_joint[0];
-    ecatCmdLcm.kd_joint_hip[leg] = _tiBoardCommand[leg].kd_joint[1];
-    ecatCmdLcm.kd_joint_knee[leg] = _tiBoardCommand[leg].kd_joint[2];
-    ecatCmdLcm.max_torque[leg] = _tiBoardCommand[leg].max_torque;
+    msg.motorCmd[joint].mode = 0x0A;
+    msg.motorCmd[joint].q = _PosStopF;
+    msg.motorCmd[joint].dq = _VelStopF;
+    msg.motorCmd[joint].Kp = 0;
+    msg.motorCmd[joint].Kd = 0;
   }
 
-  for (int leg = 0; leg < 4; leg++)
+  for (uint8_t leg = 0; leg < 4; leg++)
   {
-    ecatDataLcm.x[leg] = _tiBoardData[leg].position[0];
-    ecatDataLcm.y[leg] = _tiBoardData[leg].position[1];
-    ecatDataLcm.z[leg] = _tiBoardData[leg].position[2];
-    ecatDataLcm.dx[leg] = _tiBoardData[leg].velocity[0];
-    ecatDataLcm.dy[leg] = _tiBoardData[leg].velocity[1];
-    ecatDataLcm.dz[leg] = _tiBoardData[leg].velocity[2];
-    ecatDataLcm.fx[leg] = _tiBoardData[leg].force[0];
-    ecatDataLcm.fy[leg] = _tiBoardData[leg].force[1];
-    ecatDataLcm.fz[leg] = _tiBoardData[leg].force[2];
-    ecatDataLcm.q_abad[leg] = _tiBoardData[leg].q[0];
-    ecatDataLcm.q_hip[leg] = _tiBoardData[leg].q[1];
-    ecatDataLcm.q_knee[leg] = _tiBoardData[leg].q[2];
-    ecatDataLcm.dq_abad[leg] = _tiBoardData[leg].dq[0];
-    ecatDataLcm.dq_hip[leg] = _tiBoardData[leg].dq[1];
-    ecatDataLcm.dq_knee[leg] = _tiBoardData[leg].dq[2];
-    ecatDataLcm.tau_abad[leg] = _tiBoardData[leg].tau[0];
-    ecatDataLcm.tau_hip[leg] = _tiBoardData[leg].tau[1];
-    ecatDataLcm.tau_knee[leg] = _tiBoardData[leg].tau[2];
-    ecatDataLcm.tau_des_abad[leg] = _tiBoardData[leg].tau_des[0];
-    ecatDataLcm.tau_des_hip[leg] = _tiBoardData[leg].tau_des[1];
-    ecatDataLcm.tau_des_knee[leg] = _tiBoardData[leg].tau_des[2];
-    ecatDataLcm.loop_count_ti[leg] = _tiBoardData[leg].loop_count_ti;
-    ecatDataLcm.ethercat_count_ti[leg] = _tiBoardData[leg].ethercat_count_ti;
-    ecatDataLcm.microtime_ti[leg] = _tiBoardData[leg].microtime_ti;
+    msg.motorCmd[leg * 3 + 0].tau = _spiCommand.tau_abad_ff[leg];
+    msg.motorCmd[leg * 3 + 1].tau = -_spiCommand.tau_hip_ff[leg];
+    msg.motorCmd[leg * 3 + 2].tau = -_spiCommand.tau_knee_ff[leg];
+    cout << "l: " << (int)leg << " t0: " << msg.motorCmd[leg * 3 + 0].tau << " t1: " << msg.motorCmd[leg * 3 + 1].tau << " t2: " << msg.motorCmd[leg * 3 + 2].tau << endl;
   }
 
-  _ecatLCM.publish("ecat_cmd", &ecatCmdLcm);
-  _ecatLCM.publish("ecat_data", &ecatDataLcm);
+  _pub_low_cmd.publish(msg);
+
+  //  _spiLcm.publish("spi_data", data);
+  //  _spiLcm.publish("spi_command", cmd);
+}
+
+void HardwareBridge::_lowStateCallback(unitree_legged_msgs::LowState msg)
+{
+  for (uint8_t joint_num = 0; joint_num < 12; joint_num++)
+  {
+    _joint[joint_num].q = msg.motorState[joint_num].q;
+    _joint[joint_num].dq = msg.motorState[joint_num].dq;
+  }
+
+  _body.gyro[0] = msg.imu.gyroscope.at(0);
+  _body.gyro[1] = msg.imu.gyroscope.at(1);
+  _body.gyro[2] = msg.imu.gyroscope.at(2);
+
+  _body.acc[0] = msg.imu.accelerometer.at(0);
+  _body.acc[1] = msg.imu.accelerometer.at(1);
+  _body.acc[2] = msg.imu.accelerometer.at(2);
+
+  _body.quat[0] = msg.imu.quaternion.at(0); // w
+  _body.quat[1] = msg.imu.quaternion.at(1); // x
+  _body.quat[2] = msg.imu.quaternion.at(2); // y
+  _body.quat[3] = msg.imu.quaternion.at(3); // z
+
+  //    changeSign();
+
 }
 
 /*!
@@ -535,6 +553,7 @@ void Cheetah3HardwareBridge::publishEcatLCM()
 void HardwareBridge::publishVisualizationLCM()
 {
   cheetah_visualization_lcmt visualization_data;
+
   for (int i = 0; i < 3; i++)
   {
     visualization_data.x[i] = _mainCheetahVisualization.p[i];
@@ -552,79 +571,6 @@ void HardwareBridge::publishVisualizationLCM()
   }
 
   _visualizationLCM.publish("main_cheetah_visualization", &visualization_data);
-}
-
-Cheetah3HardwareBridge::Cheetah3HardwareBridge(RobotController* rc) : HardwareBridge(rc), _ecatLCM(getLcmUrl(255))
-{
-}
-
-void Cheetah3HardwareBridge::run()
-{
-  initCommon();
-  initHardware();
-
-  printf("[Hardware Bridge] Loading parameters over LCM...\n");
-  while (!_robotParams.isFullyInitialized())
-  {
-    printf("[Hardware Bridge] Waiting for robot parameters...\n");
-    usleep(1000000);
-  }
-
-  if (_userControlParameters)
-  {
-    while (!_userControlParameters->isFullyInitialized())
-    {
-      printf("[Hardware Bridge] Waiting for user parameters...\n");
-      usleep(1000000);
-    }
-  }
-
-  printf("[Hardware Bridge] Got all parameters, starting up!\n");
-
-  _robotRunner = new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
-
-  _robotRunner->driverCommand = &_gamepadCommand;
-  _robotRunner->tiBoardData = _tiBoardData;
-  _robotRunner->tiBoardCommand = _tiBoardCommand;
-  _robotRunner->robotType = RobotType::CHEETAH_3;
-  _robotRunner->controlParameters = &_robotParams;
-  _robotRunner->visualizationData = &_visualizationData;
-  _robotRunner->cheetahMainVisualization = &_mainCheetahVisualization;
-  _robotRunner->vectorNavData = &_vectorNavData;
-
-  _robotRunner->init();
-  _firstRun = false;
-
-  // init control thread
-
-  statusTask.start();
-
-  rt_ethercat_init();
-  // Ecat Task start
-  PeriodicMemberFunction<Cheetah3HardwareBridge> ecatTask(&taskManager, .001, "ecat", &Cheetah3HardwareBridge::runEcat,
-                                                          this);
-  ecatTask.start();
-
-  // robot controller start
-  _robotRunner->start();
-
-  // visualization start
-  PeriodicMemberFunction<Cheetah3HardwareBridge> visualizationLCMTask(
-      &taskManager, .0167, "lcm-vis", &MiniCheetahHardwareBridge::publishVisualizationLCM, this);
-  visualizationLCMTask.start();
-
-  // rc controller disabled for now
-  //  _port = init_sbus(false);  // Not Simulation
-  //  PeriodicMemberFunction<HardwareBridge> sbusTask(
-  //      &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
-  //  sbusTask.start();
-
-  for (;;)
-  {
-    usleep(100000);
-    taskManager.printStatus();
-    // printf("joy %f\n", _robotRunner->driverCommand->leftStickAnalog[0]);
-  }
 }
 
 #endif

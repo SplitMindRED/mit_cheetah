@@ -9,7 +9,8 @@
  *
  */
 template <typename T>
-void DesiredStateData<T>::zero() {
+void DesiredStateData<T>::zero()
+{
   // Overall desired state
   stateDes = Vec12<T>::Zero();
   stateTrajDes = Eigen::Matrix<T, 12, 10>::Zero();
@@ -22,44 +23,56 @@ template struct DesiredStateData<float>;
  *
  */
 template <typename T>
-void DesiredStateCommand<T>::convertToStateCommands() {
+void DesiredStateCommand<T>::convertToStateCommands()
+{
   data.zero();
   Vec2<float> joystickLeft, joystickRight;
 
   //T height_cmd(0.3);
 
   // THIS SHOULD be DISABLE Soon
-  if(parameters->use_rc) {
-    if(rcCommand->mode == RC_mode::QP_STAND){ // Stand
+  if (parameters->use_rc)
+  {
+    if (rcCommand->mode == RC_mode::QP_STAND) // Stand
+    {
       joystickLeft[0] = 0.; // Y
       joystickLeft[1] = 0.;
       joystickRight[0] = rcCommand->rpy_des[2]; // Yaw
       //height_cmd = rcCommand->height_variation;
 
-    }else if(rcCommand->mode == RC_mode::LOCOMOTION ||
-        rcCommand->mode == RC_mode::VISION){ // Walking
+    }
+    else if (rcCommand->mode == RC_mode::LOCOMOTION ||
+             rcCommand->mode == RC_mode::VISION)  // Walking
+    {
       joystickLeft[0] = rcCommand->v_des[1]; // Y
       joystickLeft[1] = rcCommand->v_des[0]; // X
       joystickRight[0] = rcCommand->omega_des[2]; // Yaw
       joystickRight[1] = rcCommand->omega_des[1]; // Pitch
       //height_cmd = rcCommand->height_variation;
 
-    }else if(rcCommand->mode == RC_mode::TWO_LEG_STANCE){ // Two Contact Stand
+    }
+    else if (rcCommand->mode == RC_mode::TWO_LEG_STANCE)  // Two Contact Stand
+    {
       //joystickLeft[0] = rcCommand->p_des[1]; // Y
       joystickLeft[1] = rcCommand->p_des[0]; // X
       joystickRight[0] = rcCommand->rpy_des[2]; // Yaw
       joystickRight[1] = rcCommand->rpy_des[1]; // Pitch
       joystickLeft[0] = rcCommand->rpy_des[0]; // Roll
 
-    }else{
+    }
+    else
+    {
       joystickLeft.setZero();
       joystickRight.setZero();
     }
-  } else { // No Remote Controller
+  }
+  else     // No Remote Controller
+  {
     joystickLeft = gamepadCommand->leftStickAnalog;
     joystickRight = gamepadCommand->rightStickAnalog;
     trigger_pressed = gamepadCommand->a;
   }
+
   // Warning!!!!
   // Recommend not to use stateDes
   // We are going to remove it soon
@@ -87,7 +100,8 @@ void DesiredStateCommand<T>::convertToStateCommands() {
 
 template <typename T>
 void DesiredStateCommand<T>::setCommandLimits(T minVelX_in, T maxVelX_in,
-    T minVelY_in, T maxVelY_in, T minTurnRate_in, T maxTurnRate_in) {
+                                              T minVelY_in, T maxVelY_in, T minTurnRate_in, T maxTurnRate_in)
+{
   minVelX = minVelX_in;
   maxVelX = maxVelX_in;
   minVelY = minVelY_in;
@@ -100,7 +114,8 @@ void DesiredStateCommand<T>::setCommandLimits(T minVelX_in, T maxVelX_in,
  *
  */
 template <typename T>
-void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec) {
+void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec)
+{
   A = Mat12<T>::Zero();
   A(0, 0) = 1;
   A(1, 1) = 1;
@@ -116,7 +131,8 @@ void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec) {
   A(11, 11) = 1;
   data.stateTrajDes.col(0) = data.stateDes;
 
-  for (int k = 1; k < N; k++) {
+  for (int k = 1; k < N; k++)
+  {
     A(0, 6) = dtVec(k - 1);
     A(1, 7) = dtVec(k - 1);
     A(2, 8) = dtVec(k - 1);
@@ -124,11 +140,15 @@ void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec) {
     A(4, 10) = dtVec(k - 1);
     A(5, 11) = dtVec(k - 1);
     data.stateTrajDes.col(k) = A * data.stateTrajDes.col(k - 1);
-    for (int i = 0; i < 12; i++) {
+
+    for (int i = 0; i < 12; i++)
+    {
       // std::cout << data.stateTrajDes(i, k) << " ";
     }
+
     // std::cout << std::endl;
   }
+
   // std::cout << std::endl;
 }
 
@@ -136,10 +156,14 @@ void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec) {
  *
  */
 template <typename T>
-float DesiredStateCommand<T>::deadband(float command, T minVal, T maxVal) {
-  if (command < deadbandRegion && command > -deadbandRegion) {
+float DesiredStateCommand<T>::deadband(float command, T minVal, T maxVal)
+{
+  if (command < deadbandRegion && command > -deadbandRegion)
+  {
     return 0.0;
-  } else {
+  }
+  else
+  {
     return (command / (2)) * (maxVal - minVal);
   }
 }
@@ -148,12 +172,14 @@ float DesiredStateCommand<T>::deadband(float command, T minVal, T maxVal) {
  *
  */
 template <typename T>
-void DesiredStateCommand<T>::printRawInfo() {
+void DesiredStateCommand<T>::printRawInfo()
+{
   // Increment printing iteration
   printIter++;
 
   // Print at requested frequency
-  if (printIter == printNum) {
+  if (printIter == printNum)
+  {
     std::cout << "[DESIRED STATE COMMAND] Printing Raw Gamepad Info...\n";
     std::cout << "---------------------------------------------------------\n";
     std::cout << "Button Start: " << gamepadCommand->start
@@ -186,12 +212,14 @@ void DesiredStateCommand<T>::printRawInfo() {
  *
  */
 template <typename T>
-void DesiredStateCommand<T>::printStateCommandInfo() {
+void DesiredStateCommand<T>::printStateCommandInfo()
+{
   // Increment printing iteration
   printIter++;
 
   // Print at requested frequency
-  if (printIter == printNum) {
+  if (printIter == printNum)
+  {
     std::cout << "[DESIRED STATE COMMAND] Printing State Command Info...\n";
     std::cout << "---------------------------------------------------------\n";
     std::cout << "Position X: " << data.stateDes(0)

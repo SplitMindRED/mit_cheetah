@@ -19,6 +19,10 @@
 #include <lcm-cpp.hpp>
 #include <string>
 
+#include <ros/ros.h>
+//#include <boost/thread.hpp>
+//#include <boost/thread/mutex.hpp>
+
 #include "RobotRunner.h"
 #include "Utilities/PeriodicTask.h"
 #include "control_parameter_request_lcmt.hpp"
@@ -27,6 +31,16 @@
 #include "ecat_data_t.hpp"
 #include "gamepad_lcmt.hpp"
 #include "microstrain_lcmt.hpp"
+#include <unitree_legged_msgs/LowCmd.h>
+#include <unitree_legged_msgs/LowState.h>
+#include <unitree_legged_msgs/HighCmd.h>
+#include <unitree_legged_msgs/HighState.h>
+#include <unitree_legged_msgs/MotorCmd.h>
+#include <unitree_legged_msgs/MotorState.h>
+#include <unitree_legged_msgs/IMU.h>
+//#include "convert.h"
+
+#define RATE 1000 //rate of sleep loop
 
 /*!
  * Interface between robot and hardware
@@ -35,10 +49,15 @@ class HardwareBridge
 {
 public:
   HardwareBridge(RobotController* robot_ctrl)
-    : statusTask(&taskManager, 0.5f), _interfaceLCM(getLcmUrl(255)), _visualizationLCM(getLcmUrl(255))
+    : statusTask(&taskManager, 0.5f), _interfaceLCM(getLcmUrl(255)), _visualizationLCM(getLcmUrl(255))//, _safety(UNITREE_LEGGED_SDK::LeggedType::A1)
   {
     _controller = robot_ctrl;
     _userControlParameters = robot_ctrl->getUserControlParameters();
+
+    _sub_low_state = _n.subscribe("/low_state", 1, &HardwareBridge::_lowStateCallback, this);
+
+    _pub_low_cmd = _n.advertise<unitree_legged_msgs::LowCmd>("/low_cmd", 1);
+
   }
   void prefaultStack();
   void setupScheduler();
@@ -65,6 +84,7 @@ protected:
   CheetahVisualization _mainCheetahVisualization;
   lcm::LCM _interfaceLCM;
   lcm::LCM _visualizationLCM;
+  //UNITREE_LEGGED_SDK::LCM roslcm(unitree_control_level);
   control_parameter_respones_lcmt _parameter_response_lcmt;
   SpiData _spiData;
   SpiCommand _spiCommand;
@@ -81,7 +101,51 @@ protected:
   RobotController* _controller = nullptr;
   ControlParameters* _userControlParameters = nullptr;
 
+  ros::NodeHandle _n;
+  ros::Subscriber _sub_low_state;
+  ros::Publisher _pub_low_cmd;
+
+  void _lowStateCallback(unitree_legged_msgs::LowState msg);
+
+//  const unsigned char _HIGHLEVEL = 0x00;
+  const unsigned char _LOWLEVEL  = 0xff;
+
+  const double _PosStopF = (2.146E+9f);
+  const double _VelStopF = (16000.0f);
+
+//  float Kp = 1;
+//  float Kd = 1;
+
+  struct Joint
+  {
+    float q = {0};
+    float dq = {0};
+    float q_d = {0};
+    float q_init = {0};
+    float dq_d = {0};
+    float tau = {0};
+  } _joint[12];
+
+  struct Body
+  {
+    float gyro[3] = {0};
+    float acc[3] = {0};
+    float quat[4] = {0};
+  }_body;
+
   int _port;
+
+//  UNITREE_LEGGED_SDK::LowCmd _send_low_lcm = {0};
+//  UNITREE_LEGGED_SDK::LowState _recv_low_lcm = {0};
+//  unitree_legged_msgs::LowCmd _send_low_ros;
+//  unitree_legged_msgs::LowState _recv_low_ros;
+
+//  UNITREE_LEGGED_SDK::HighCmd _send_high_lcm = {0};
+//  UNITREE_LEGGED_SDK::HighState _recv_high_lcm = {0};
+//  unitree_legged_msgs::HighCmd _send_high_ros;
+//  unitree_legged_msgs::HighState _recv_high_ros;
+
+//  UNITREE_LEGGED_SDK::Safety _safety;
 };
 
 /*!
@@ -110,22 +174,5 @@ private:
   bool _load_parameters_from_file;
 };
 
-class Cheetah3HardwareBridge : public HardwareBridge
-{
-public:
-  Cheetah3HardwareBridge(RobotController* rc);
-  void runEcat();
-  void initHardware();
-  void run();
-  void publishEcatLCM();
-  // todo imu?
-
-private:
-  VectorNavData _vectorNavData;
-  lcm::LCM _ecatLCM;
-  ecat_command_t ecatCmdLcm;
-  ecat_data_t ecatDataLcm;
-  // nothing?
-};
 #endif  // END of #ifdef linux
 #endif  // PROJECT_HARDWAREBRIDGE_H

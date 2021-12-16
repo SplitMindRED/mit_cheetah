@@ -39,10 +39,10 @@ void CheaterOrientationEstimator<T>::run()
 template <typename T>
 void VectorNavOrientationEstimator<T>::run()
 {
-  this->_stateEstimatorData.result->orientation[0] = this->_stateEstimatorData.vectorNavData->quat[3];
-  this->_stateEstimatorData.result->orientation[1] = this->_stateEstimatorData.vectorNavData->quat[0];
-  this->_stateEstimatorData.result->orientation[2] = this->_stateEstimatorData.vectorNavData->quat[1];
-  this->_stateEstimatorData.result->orientation[3] = this->_stateEstimatorData.vectorNavData->quat[2];
+  this->_stateEstimatorData.result->orientation[0] = this->_stateEstimatorData.vectorNavData->quat[3]; // w
+  this->_stateEstimatorData.result->orientation[1] = this->_stateEstimatorData.vectorNavData->quat[0]; // x
+  this->_stateEstimatorData.result->orientation[2] = this->_stateEstimatorData.vectorNavData->quat[1]; // y
+  this->_stateEstimatorData.result->orientation[3] = this->_stateEstimatorData.vectorNavData->quat[2]; // z
 
   //   ROS_INFO("UPDATE VECTOR NAV!");
   //   std::cout << "0: " << this->_stateEstimatorData.result->orientation[0]

@@ -20,7 +20,8 @@
  * Result of state estimation
  */
 template <typename T>
-struct StateEstimate {
+struct StateEstimate
+{
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Vec4<T> contactEstimate;
   Vec3<T> position;
@@ -35,7 +36,7 @@ struct StateEstimate {
   Vec3<T> aBody, aWorld;
 
   void setLcm(state_estimator_lcmt& lcm_data) {
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
       lcm_data.p[i] = position[i];
       lcm_data.vWorld[i] = vWorld[i];
       lcm_data.vBody[i] = vBody[i];
@@ -44,7 +45,7 @@ struct StateEstimate {
       lcm_data.omegaWorld[i] = omegaWorld[i];
     }
 
-    for(int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       lcm_data.quat[i] = orientation[i];
     }
   }
@@ -57,7 +58,8 @@ struct StateEstimate {
  * StateEstimatorContainer)
  */
 template <typename T>
-struct StateEstimatorData {
+struct StateEstimatorData
+{
   StateEstimate<T>* result;  // where to write the output to
   VectorNavData* vectorNavData;
   CheaterState<double>* cheaterState;
@@ -70,12 +72,15 @@ struct StateEstimatorData {
  * All Estimators should inherit from this class
  */
 template <typename T>
-class GenericEstimator {
+class GenericEstimator
+{
  public:
   virtual void run() = 0;
   virtual void setup() = 0;
 
-  void setData(StateEstimatorData<T> data) { _stateEstimatorData = data; }
+  void setData(StateEstimatorData<T> data) {
+    _stateEstimatorData = data;
+  }
 
   virtual ~GenericEstimator() = default;
   StateEstimatorData<T> _stateEstimatorData;
@@ -87,7 +92,8 @@ class GenericEstimator {
  * Also updates visualizations
  */
 template <typename T>
-class StateEstimatorContainer {
+class StateEstimatorContainer
+{
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -115,6 +121,7 @@ class StateEstimatorContainer {
     for (auto estimator : _estimators) {
       estimator->run();
     }
+
     if (visualization) {
       visualization->quat = _data.result->orientation.template cast<float>();
       visualization->p = _data.result->position.template cast<float>();
@@ -125,14 +132,18 @@ class StateEstimatorContainer {
   /*!
    * Get the result
    */
-  const StateEstimate<T>& getResult() { return *_data.result; }
-  StateEstimate<T> * getResultHandle() { return _data.result; }
+  const StateEstimate<T>& getResult() {
+    return *_data.result;
+  }
+  StateEstimate<T>* getResultHandle() {
+    return _data.result;
+  }
 
   /*!
    * Set the contact phase
    */
-  void setContactPhase(Vec4<T>& phase) { 
-    *_data.contactPhase = phase; 
+  void setContactPhase(Vec4<T>& phase) {
+    *_data.contactPhase = phase;
   }
 
   /*!
@@ -155,17 +166,18 @@ class StateEstimatorContainer {
   void removeEstimator() {
     int nRemoved = 0;
     _estimators.erase(
-        std::remove_if(_estimators.begin(), _estimators.end(),
-                       [&nRemoved](GenericEstimator<T>* e) {
-                         if (dynamic_cast<EstimatorToRemove*>(e)) {
-                           delete e;
-                           nRemoved++;
-                           return true;
-                         } else {
-                           return false;
-                         }
-                       }),
-        _estimators.end());
+      std::remove_if(_estimators.begin(), _estimators.end(),
+    [&nRemoved](GenericEstimator<T>* e) {
+      if (dynamic_cast<EstimatorToRemove*>(e)) {
+        delete e;
+        nRemoved++;
+        return true;
+      }
+      else {
+        return false;
+      }
+    }),
+    _estimators.end());
   }
 
   /*!
@@ -175,6 +187,7 @@ class StateEstimatorContainer {
     for (auto estimator : _estimators) {
       delete estimator;
     }
+
     _estimators.clear();
   }
 

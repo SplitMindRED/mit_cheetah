@@ -7,8 +7,9 @@
 #include "cppTypes.h"
 
 
-class Gait {
-public:
+class Gait
+{
+ public:
   virtual ~Gait() = default;
 
   virtual Vec4<float> getContactState() = 0;
@@ -20,15 +21,16 @@ public:
   virtual int getCurrentGaitPhase() = 0;
   virtual void debugPrint() { }
 
-protected:
+ protected:
   std::string _name;
 };
 
 using Eigen::Array4f;
 using Eigen::Array4i;
 
-class OffsetDurationGait : public Gait {
-public:
+class OffsetDurationGait : public Gait
+{
+ public:
   OffsetDurationGait(int nSegment, Vec4<int> offset, Vec4<int> durations, const std::string& name);
   ~OffsetDurationGait();
   Vec4<float> getContactState();
@@ -40,7 +42,7 @@ public:
   int getCurrentGaitPhase();
   void debugPrint();
 
-private:
+ private:
   int* _mpc_table;
   Array4i _offsets; // offset in mpc segments
   Array4i _durations; // duration of step in mpc segments
@@ -55,8 +57,9 @@ private:
 
 
 
-class MixedFrequncyGait : public Gait {
-public:
+class MixedFrequncyGait : public Gait
+{
+ public:
   MixedFrequncyGait(int nSegment, Vec4<int> periods, float duty_cycle, const std::string& name);
   ~MixedFrequncyGait();
   Vec4<float> getContactState();
@@ -68,7 +71,7 @@ public:
   int getCurrentGaitPhase();
   void debugPrint();
 
-private:
+ private:
   float _duty_cycle;
   int* _mpc_table;
   Array4i _periods;

@@ -30,12 +30,6 @@ FSM_State_Locomotion<T>::FSM_State_Locomotion(ControlFSMData<T>* _controlFSMData
                                       27 / (1000. * _controlFSMData->controlParameters->controller_dt),
                                       _controlFSMData->userParameters);
   }
-  else if (_controlFSMData->_quadruped->_robotType == RobotType::CHEETAH_3)
-  {
-    cMPCOld = new ConvexMPCLocomotion(_controlFSMData->controlParameters->controller_dt,
-                                      33 / (1000. * _controlFSMData->controlParameters->controller_dt),
-                                      _controlFSMData->userParameters);
-  }
   else
   {
     assert(false);
@@ -162,6 +156,7 @@ TransitionData<T> FSM_State_Locomotion<T>::transition()
       LocomotionControlStep();
 
       iter++;
+
       if (iter >= this->transitionDuration * 1000)
       {
         this->transitionData.done = true;
@@ -223,6 +218,7 @@ bool FSM_State_Locomotion<T>::locomotionSafe()
   for (int leg = 0; leg < 4; leg++)
   {
     auto p_leg = this->_data->_legController->datas[leg].p;
+
     if (p_leg[2] > 0)
     {
       printf("Unsafe locomotion: leg %d is above hip (%.3f m)\n", leg, p_leg[2]);
@@ -236,6 +232,7 @@ bool FSM_State_Locomotion<T>::locomotionSafe()
     }
 
     auto v_leg = this->_data->_legController->datas[leg].v.norm();
+
     if (std::fabs(v_leg) > 9.)
     {
       printf("Unsafe locomotion: leg %d is moving too quickly (%.3f m/s)\n", leg, v_leg);
@@ -299,9 +296,11 @@ void FSM_State_Locomotion<T>::LocomotionControlStep()
       _wbc_data->aFoot_des[i] = cMPCOld->aFoot_des[i];
       _wbc_data->Fr_des[i] = cMPCOld->Fr_des[i];
     }
+
     _wbc_data->contact_state = cMPCOld->contact_state;
     _wbc_ctrl->run(_wbc_data, *this->_data);
   }
+
   for (int leg(0); leg < 4; ++leg)
   {
     // this->_data->_legController->commands[leg].pDes = pDes_backup[leg];

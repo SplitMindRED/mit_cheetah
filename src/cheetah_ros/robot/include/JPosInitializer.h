@@ -14,7 +14,8 @@
  * Controller to initialize the position of the legs on power-on
  */
 template <typename T>
-class JPosInitializer {
+class JPosInitializer
+{
  public:
   JPosInitializer(T end_time, float dt);
   ~JPosInitializer();

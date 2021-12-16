@@ -8,6 +8,8 @@ find_package(catkin REQUIRED
   roscpp
   std_msgs
   trajectory_msgs
+  quadruped_msgs
+  unitree_legged_msgs
   COMPONENTS)
 
 catkin_package(
@@ -33,7 +35,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 option(MINI_CHEETAH_BUILD "use compiler flags for mini cheetah computer" OFF)
 set(BUILD_TYPE_RELEASE TRUE)
 
-option(NO_SIM "Do not build simulator" OFF)
+option(USE_SIM "Do not build simulator" OFF)
+set(UNITREE_LEGGED_SDK_PATH "../unitree_legged_sdk")
+set(UNITREE_PLATFORM "amd64")
 
 if(MINI_CHEETAH_BUILD)
   SET (THIS_COM "../" )
@@ -71,15 +75,30 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
+  ${UNITREE_LEGGED_SDK_PATH}/include
+  ${UNITREE_LEGGED_SDK_PATH}/include/unitree_legged_sdk
   )
 
 #find_package(lcm)
 
+link_directories(${UNITREE_LEGGED_SDK_PATH}/lib)
+string(CONCAT LEGGED_SDK_NAME libunitree_legged_sdk_${UNITREE_PLATFORM}.so)
+set(EXTRA_LIBS ${LEGGED_SDK_NAME})
+add_definitions(-DSDK3_2)
+
 add_subdirectory(robot)
+
 add_subdirectory(third-party)
 add_subdirectory(common)
-add_subdirectory(sim)
+
+if(USE_SIM)
+ add_subdirectory(sim)
+else(USE_SIM)
+
+endif()
+
 add_subdirectory(user)
-add_subdirectory(rc_test)
+#add_subdirectory(rc_test)
 
 

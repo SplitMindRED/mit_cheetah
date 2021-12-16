@@ -29,7 +29,8 @@
 /**
  * Enumerate all of the FSM states so we can keep track of them.
  */
-enum class FSM_StateName {
+enum class FSM_StateName
+{
   INVALID,
   PASSIVE,
   JOINT_PD,
@@ -47,7 +48,8 @@ enum class FSM_StateName {
  *
  */
 template <typename T>
-class FSM_State {
+class FSM_State
+{
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -62,10 +64,14 @@ class FSM_State {
   virtual void run() = 0; //{}
 
   // Manages state specific transitions
-  virtual FSM_StateName checkTransition() { return FSM_StateName::INVALID; }
+  virtual FSM_StateName checkTransition() {
+    return FSM_StateName::INVALID;
+  }
 
   // Runs the transition behaviors and returns true when done transitioning
-  virtual TransitionData<T> transition() { return transitionData; }
+  virtual TransitionData<T> transition() {
+    return transitionData;
+  }
 
   // Behavior to be carried out when exiting a state
   virtual void onExit() = 0; // {}

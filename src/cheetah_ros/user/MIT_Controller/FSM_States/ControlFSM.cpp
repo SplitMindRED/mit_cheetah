@@ -98,6 +98,7 @@ void ControlFSM<T>::runFSM()
   if (data.controlParameters->use_rc)
   {
     int rc_mode = data._desiredStateCommand->rcCommand->mode;
+
     if (rc_mode == RC_mode::RECOVERY_STAND)
     {
       data.controlParameters->control_mode = K_RECOVERY_STAND;
@@ -118,6 +119,7 @@ void ControlFSM<T>::runFSM()
     {
       data.controlParameters->control_mode = K_BACKFLIP;
     }
+
     // data.controlParameters->control_mode = K_FRONTJUMP;
     // std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
   }
@@ -184,7 +186,8 @@ void ControlFSM<T>::runFSM()
     }
   }
   else
-  {  // if ESTOP
+  {
+    // if ESTOP
     currentState = statesList.passive;
     currentState->onEnter();
     nextStateName = currentState->stateName;
@@ -322,6 +325,7 @@ void ControlFSM<T>::printInfo(int opt)
         std::cout << "[CONTROL FSM] Printing FSM Info...\n";
         std::cout << "---------------------------------------------------------\n";
         std::cout << "Iteration: " << iter << "\n";
+
         if (operatingMode == FSM_OperatingMode::NORMAL)
         {
           std::cout << "Operating Mode: NORMAL in " << currentState->stateString << "\n";
@@ -335,6 +339,7 @@ void ControlFSM<T>::printInfo(int opt)
         {
           std::cout << "Operating Mode: ESTOP\n";
         }
+
         std::cout << "Gait Type: " << data._gaitScheduler->gaitData.gaitName << "\n";
         std::cout << std::endl;
 
