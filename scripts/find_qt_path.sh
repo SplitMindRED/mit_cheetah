@@ -1,6 +1,6 @@
 #/bin/bash
 
-QT_VER="$(ls ~/Qt/ | grep 5 -m1)"
+QT_VER="$(qtchooser -print-env |tail -1| cut -d/ -f2-6)"
 
-printf "${HOME}/Qt/${QT_VER}/gcc_64/"
+printf "/${QT_VER}"
 

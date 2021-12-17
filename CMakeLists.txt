@@ -1,18 +1,21 @@
 cmake_minimum_required(VERSION 3.5)
 project(cheetah_software)
 
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD OFF)
+set(CMAKE_DISABLE_SOURCE_CHANGES  OFF)
 
 find_package(catkin REQUIRED 
   roscpp
   gazebo_ros
   trajectory_msgs
+  unitree_legged_msgs
   COMPONENTS)
 
 catkin_package(
   INCLUDE_DIRS
   LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS
+  unitree_legged_msgs
 )
 
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")

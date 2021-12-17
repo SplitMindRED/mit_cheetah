@@ -12,7 +12,7 @@
 template <typename T>
 class SafetyChecker {
  public:
-  SafetyChecker(ControlFSMData<T>* dataIn) : data(dataIn){};
+  SafetyChecker(ControlFSMData<T>* dataIn) : data(dataIn){}
 
   // Pre checks to make sure controls are safe to run
   bool checkSafeOrientation();  // robot's orientation is safe to control

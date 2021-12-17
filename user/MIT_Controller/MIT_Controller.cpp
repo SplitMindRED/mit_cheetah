@@ -40,7 +40,9 @@ void MIT_Controller::runController() {
 
     ROS_INFO_ONCE("Inside runController");
 
-    if (_controlFSM->data._legController)
+    if (_controlFSM->data._legController &&
+        _controlFSM->currentState->stateName != FSM_StateName::PASSIVE &&
+        _controlFSM->currentState->stateName != FSM_StateName::STAND_UP)
     {
         trajectory_msgs::JointTrajectory msg;
         static uint32_t seq = 0;
@@ -86,6 +88,8 @@ void MIT_Controller::runController() {
         msg.points.at(0).time_from_start.nsec = 1428571;
         pub_.publish(msg);
     }
+    ros::spinOnce();
+
 }
 
 

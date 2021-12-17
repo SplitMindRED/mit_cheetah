@@ -232,7 +232,19 @@ void SimulationBridge::runRobotControl() {
 
     _robotRunner->driverCommand =
         &_sharedMemory().simToRobot.gamepadCommand;
-    _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;
+//    _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;
+    // Сюда вставить структуру spiData, сконструированную из топика ROS
+//    _robotRunner->spiData = spiDataRos_;
+//    spiDataRos_->fla
+//    for (int leg = 0; leg < 4; leg++)
+//    {
+//      spiDataRos_->flags[leg] = _sharedMemory().simToRobot.spiData.flags[leg];
+//    }
+//    spiDataRos_->spi_driver_status = _sharedMemory().simToRobot.spiData.spi_driver_status;
+//    spiDataRos_->
+//    std::memcpy(spiDataRos_, &_sharedMemory().simToRobot.spiData, sizeof(SpiData));
+    spiDataRos_ = &_sharedMemory().simToRobot.spiData;
+    _robotRunner->spiData = spiDataRos_;
     _robotRunner->tiBoardData = _sharedMemory().simToRobot.tiBoardData;
     _robotRunner->robotType = _robot;
     _robotRunner->vectorNavData = &_sharedMemory().simToRobot.vectorNav;
@@ -269,4 +281,34 @@ void SimulationBridge::run_sbus() {
     }
     usleep(5000);
   }
+}
+
+void SimulationBridge::raisimCallack(const trajectory_msgs::JointTrajectoryConstPtr& msg)
+{
+  static bool init = true;
+  if (init)
+  {
+    spiDataRos_ = new SpiData;
+    _robotRunner->spiData = spiDataRos_;
+//    std::memcpy(spiDataRos_, &_sharedMemory().simToRobot.spiData, sizeof(SpiData));
+    init = false;
+  }
+  if (_robotRunner->spiData == &_sharedMemory().simToRobot.spiData)
+    ROS_INFO("Get feddback from MIT");
+  else if (_robotRunner->spiData == spiDataRos_)
+  {
+    ROS_INFO("Get feddback from RAISIM");
+  }
+
+  for (int leg = 0; leg < 4; leg++) {
+    spiDataRos_->q_abad[leg] = msg->points.at(0).positions.at(leg * 3 + 0);
+    spiDataRos_->q_hip[leg] = msg->points.at(0).positions.at(leg * 3 + 1);
+    spiDataRos_->q_knee[leg] = msg->points.at(0).positions.at(leg * 3 + 2);
+
+    spiDataRos_->qd_abad[leg] = msg->points.at(0).velocities.at(leg * 3 + 0);
+    spiDataRos_->qd_hip[leg] = msg->points.at(0).velocities.at(leg * 3 + 1);
+    spiDataRos_->qd_knee[leg] = msg->points.at(0).velocities.at(leg * 3 + 2);
+  }
+
+
 }
